@@ -731,10 +731,38 @@
           const data = await r.json().catch(() => ({}));
           if (data.payment_url) {
             setPaymentLoading(false);
-            if (tg.openLink) tg.openLink(data.payment_url); else window.open(data.payment_url, '_blank');
+            let opened = false;
+            try {
+              if (tg && tg.openLink) {
+                tg.openLink(data.payment_url);
+                opened = true;
+              }
+            } catch (e) {}
+            if (!opened) {
+              try {
+                window.location.href = data.payment_url;
+                opened = true;
+              } catch (e) {}
+            }
+            if (!opened) {
+              try {
+                window.open(data.payment_url, '_blank');
+                opened = true;
+              } catch (e) {}
+            }
+            if (!opened && tg && tg.showPopup) {
+              tg.showPopup({
+                title: '',
+                message: (LANG === 'es'
+                  ? 'No fue posible abrir el pago automáticamente. Intenta de nuevo.'
+                  : (LANG === 'en'
+                    ? 'Could not open payment automatically. Please try again.'
+                    : 'Não foi possível abrir o pagamento automaticamente. Tente novamente.')),
+              });
+            }
             return;
           }
-          const errMsg = data.error || (r.ok ? '' : 'Erro ' + r.status);
+          const errMsg = data.error || (r.ok ? (LANG === 'es' ? 'No se recibió link de pago.' : (LANG === 'en' ? 'Payment link not returned.' : 'Link de pagamento não retornado.')) : 'Erro ' + r.status);
           if (errMsg && tg.showPopup) tg.showPopup({ title: '', message: errMsg });
         } catch (err) {
           if (tg.showPopup) tg.showPopup({ title: '', message: (t('save_no_api') || 'Não foi possível conectar. Verifique se o bot está com a API ativa (porta 8080).') });
