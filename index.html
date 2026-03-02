@@ -297,7 +297,7 @@
       <p class="section-desc" data-i18n="payment_desc">Get unlimited practice and voice features. Cancel anytime.</p>
 
       <div class="price-box">
-        <div class="price">US$ 9,99</div>
+        <div class="price">R$ 1,00</div>
         <div class="period" data-i18n="payment_period">per month · cancel anytime</div>
         <ul class="pro-benefits">
           <li data-i18n="payment_benefit_1">✓ Unlimited conversations</li>
@@ -307,7 +307,7 @@
         </ul>
       </div>
 
-      <a id="btn-pagseguro" href="#" class="btn btn-pagseguro" data-i18n="payment_btn">Pagar com PagSeguro</a>
+      <a id="btn-pagseguro" href="#" class="btn btn-pagseguro" data-i18n="payment_btn">Pagar com Asaas</a>
       <button type="button" class="btn btn-close" data-action="close" data-i18n="btn_close">Close</button>
     </section>
 
@@ -377,7 +377,7 @@
     const botName = params.get('bot') || '';
     let apiBase = (params.get('api') || '').replace(/\/$/, '');
     if (!apiBase && tg && window.location.origin) apiBase = window.location.origin;
-    const pagseguroUrl = params.get('pagseguro') || 'https://pag.ae/SEU_LINK_DE_PAGAMENTO';
+    const asaasUrl = params.get('asaas') || '';
 
     let userPlan = 'basic';
 
@@ -430,7 +430,7 @@
         payment_benefit_2: '✓ Voice in & out',
         payment_benefit_3: '✓ All languages',
         payment_benefit_4: '✓ No ads, no limits',
-        payment_btn: 'Pay with PagSeguro',
+        payment_btn: 'Pay with Asaas',
         lang_title: 'Languages',
         lang_desc: 'Your main language and the language you want to learn.',
         lang_main_label: 'Main language (yours)',
@@ -480,7 +480,7 @@
         payment_benefit_2: '✓ Voz na entrada e saída',
         payment_benefit_3: '✓ Todos os idiomas',
         payment_benefit_4: '✓ Sem anúncios, sem limites',
-        payment_btn: 'Pagar com PagSeguro',
+        payment_btn: 'Pagar com Asaas',
         lang_title: 'Idiomas',
         lang_desc: 'Seu idioma principal e o idioma que deseja aprender.',
         lang_main_label: 'Idioma principal (o seu)',
@@ -530,7 +530,7 @@
         payment_benefit_2: '✓ Voz de entrada y salida',
         payment_benefit_3: '✓ Todos los idiomas',
         payment_benefit_4: '✓ Sin anuncios, sin límites',
-        payment_btn: 'Pagar con PagSeguro',
+        payment_btn: 'Pagar con Asaas',
         lang_title: 'Idiomas',
         lang_desc: 'Tu idioma principal y el idioma que quieres aprender.',
         lang_main_label: 'Idioma principal (el tuyo)',
@@ -589,7 +589,7 @@
       e.preventDefault();
       if (apiBase && tg && tg.initData) {
         try {
-          const r = await fetch(apiBase + '/webapp/pagseguro/checkout', {
+          const r = await fetch(apiBase + '/webapp/asaas/checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ initData: tg.initData })
@@ -606,13 +606,13 @@
         }
         return;
       }
-      if (pagseguroUrl && pagseguroUrl.indexOf('SEU_LINK') === -1) {
-        if (tg && tg.openLink) tg.openLink(pagseguroUrl); else window.open(pagseguroUrl, '_blank');
+      if (asaasUrl && asaasUrl.indexOf('SEU_LINK') === -1) {
+        if (tg && tg.openLink) tg.openLink(asaasUrl); else window.open(asaasUrl, '_blank');
       } else if (tg && tg.showPopup) {
         tg.showPopup({ title: '', message: t('save_no_api') || 'Configure a API (WEBAPP_API_PORT=8080) e use a URL do túnel na porta 8080 no menu.' });
       }
     });
-    document.getElementById('btn-pagseguro').href = pagseguroUrl.indexOf('SEU_LINK') === -1 ? pagseguroUrl : '#';
+    document.getElementById('btn-pagseguro').href = asaasUrl.indexOf('SEU_LINK') === -1 ? asaasUrl : '#';
 
     const mainLangSelect = document.getElementById('main-lang');
     if (mainLangSelect && ['pt','en','es','fr','de','it','ja','zh','ru','ko'].includes(LANG)) {
