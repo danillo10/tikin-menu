@@ -297,7 +297,7 @@
       <p class="section-desc" data-i18n="payment_desc">Get unlimited practice and voice features. Cancel anytime.</p>
 
       <div class="price-box">
-        <div class="price">R$ 1,00</div>
+        <div class="price">R$ 5,00</div>
         <div class="period" data-i18n="payment_period">per month · cancel anytime</div>
         <ul class="pro-benefits">
           <li data-i18n="payment_benefit_1">✓ Unlimited conversations</li>
@@ -585,37 +585,14 @@
     });
     document.getElementById('btn-close').onclick = () => { if (tg && tg.close) tg.close(); };
 
-    function askCpfCnpj() {
-      const promptMsg = LANG === 'es'
-        ? 'Ingresa tu CPF/CNPJ (solo números):'
-        : (LANG === 'en'
-          ? 'Enter your CPF/CNPJ (numbers only):'
-          : 'Digite seu CPF/CNPJ (somente números):');
-      const invalidMsg = LANG === 'es'
-        ? 'CPF/CNPJ inválido. Verifica y vuelve a intentar.'
-        : (LANG === 'en'
-          ? 'Invalid CPF/CNPJ. Please check and try again.'
-          : 'CPF/CNPJ inválido. Confira e tente novamente.');
-      const value = window.prompt(promptMsg, '');
-      if (value === null) return null;
-      const clean = String(value).replace(/\D/g, '');
-      if (!(clean.length === 11 || clean.length === 14)) {
-        if (tg && tg.showPopup) tg.showPopup({ title: '', message: invalidMsg });
-        return null;
-      }
-      return clean;
-    }
-
     document.getElementById('btn-pagseguro').addEventListener('click', async function(e) {
       e.preventDefault();
       if (apiBase && tg && tg.initData) {
-        const cpfCnpj = askCpfCnpj();
-        if (!cpfCnpj) return;
         try {
-          const r = await fetch(apiBase + '/webapp/asaas/checkout', {
+          const r = await fetch(apiBase + '/webapp/pagseguro/checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ initData: tg.initData, cpfCnpj: cpfCnpj })
+            body: JSON.stringify({ initData: tg.initData })
           });
           const data = await r.json().catch(() => ({}));
           if (data.payment_url) {
@@ -629,13 +606,13 @@
         }
         return;
       }
-      if (asaasUrl && asaasUrl.indexOf('SEU_LINK') === -1) {
-        if (tg && tg.openLink) tg.openLink(asaasUrl); else window.open(asaasUrl, '_blank');
+      if (pagseguroUrl && pagseguroUrl.indexOf('SEU_LINK') === -1) {
+        if (tg && tg.openLink) tg.openLink(pagseguroUrl); else window.open(pagseguroUrl, '_blank');
       } else if (tg && tg.showPopup) {
         tg.showPopup({ title: '', message: t('save_no_api') || 'Configure a API (WEBAPP_API_PORT=8080) e use a URL do túnel na porta 8080 no menu.' });
       }
     });
-    document.getElementById('btn-pagseguro').href = asaasUrl.indexOf('SEU_LINK') === -1 ? asaasUrl : '#';
+    document.getElementById('btn-pagseguro').href = pagseguroUrl.indexOf('SEU_LINK') === -1 ? pagseguroUrl : '#';
 
     const mainLangSelect = document.getElementById('main-lang');
     if (mainLangSelect && ['pt','en','es','fr','de','it','ja','zh','ru','ko'].includes(LANG)) {
