@@ -585,14 +585,37 @@
     });
     document.getElementById('btn-close').onclick = () => { if (tg && tg.close) tg.close(); };
 
+    function askCpfCnpj() {
+      const promptMsg = LANG === 'es'
+        ? 'Ingresa tu CPF/CNPJ (solo números):'
+        : (LANG === 'en'
+          ? 'Enter your CPF/CNPJ (numbers only):'
+          : 'Digite seu CPF/CNPJ (somente números):');
+      const invalidMsg = LANG === 'es'
+        ? 'CPF/CNPJ inválido. Verifica y vuelve a intentar.'
+        : (LANG === 'en'
+          ? 'Invalid CPF/CNPJ. Please check and try again.'
+          : 'CPF/CNPJ inválido. Confira e tente novamente.');
+      const value = window.prompt(promptMsg, '');
+      if (value === null) return null;
+      const clean = String(value).replace(/\D/g, '');
+      if (!(clean.length === 11 || clean.length === 14)) {
+        if (tg && tg.showPopup) tg.showPopup({ title: '', message: invalidMsg });
+        return null;
+      }
+      return clean;
+    }
+
     document.getElementById('btn-pagseguro').addEventListener('click', async function(e) {
       e.preventDefault();
       if (apiBase && tg && tg.initData) {
+        const cpfCnpj = askCpfCnpj();
+        if (!cpfCnpj) return;
         try {
           const r = await fetch(apiBase + '/webapp/asaas/checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ initData: tg.initData })
+            body: JSON.stringify({ initData: tg.initData, cpfCnpj: cpfCnpj })
           });
           const data = await r.json().catch(() => ({}));
           if (data.payment_url) {
