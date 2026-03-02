@@ -297,7 +297,7 @@
       <p class="section-desc" data-i18n="payment_desc">Get unlimited practice and voice features. Cancel anytime.</p>
 
       <div class="price-box">
-        <div class="price">R$ 1,00</div>
+        <div class="price">R$ 5,00</div>
         <div class="period" data-i18n="payment_period">per month · cancel anytime</div>
         <ul class="pro-benefits">
           <li data-i18n="payment_benefit_1">✓ Unlimited conversations</li>
@@ -585,75 +585,14 @@
     });
     document.getElementById('btn-close').onclick = () => { if (tg && tg.close) tg.close(); };
 
-    function askBuyerData() {
-      const namePrompt = LANG === 'es'
-        ? 'Ingresa tu nombre completo:'
-        : (LANG === 'en' ? 'Enter your full name:' : 'Digite seu nome completo:');
-      const emailPrompt = LANG === 'es'
-        ? 'Ingresa tu e-mail de compra:'
-        : (LANG === 'en' ? 'Enter your buyer e-mail:' : 'Digite seu e-mail de compra:');
-      const cpfPrompt = LANG === 'es'
-        ? 'Ingresa tu CPF/CNPJ (solo números):'
-        : (LANG === 'en' ? 'Enter your CPF/CNPJ (numbers only):' : 'Digite seu CPF/CNPJ (somente números):');
-      const phonePrompt = LANG === 'es'
-        ? 'Ingresa tu teléfono (con DDD, solo números):'
-        : (LANG === 'en' ? 'Enter your phone (area code + numbers):' : 'Digite seu telefone (com DDD, somente números):');
-      const nameInvalid = LANG === 'es'
-        ? 'Nombre completo inválido.'
-        : (LANG === 'en' ? 'Invalid full name.' : 'Nome completo inválido.');
-      const emailInvalid = LANG === 'es'
-        ? 'E-mail inválido.'
-        : (LANG === 'en' ? 'Invalid e-mail.' : 'E-mail inválido.');
-      const cpfInvalid = LANG === 'es'
-        ? 'CPF/CNPJ inválido.'
-        : (LANG === 'en' ? 'Invalid CPF/CNPJ.' : 'CPF/CNPJ inválido.');
-      const phoneInvalid = LANG === 'es'
-        ? 'Teléfono inválido.'
-        : (LANG === 'en' ? 'Invalid phone number.' : 'Telefone inválido.');
-
-      const fullName = (window.prompt(namePrompt, '') || '').trim();
-      if (!fullName || fullName.split(/\s+/).length < 2) {
-        if (tg && tg.showPopup) tg.showPopup({ title: '', message: nameInvalid });
-        return null;
-      }
-      const email = (window.prompt(emailPrompt, '') || '').trim().toLowerCase();
-      if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-        if (tg && tg.showPopup) tg.showPopup({ title: '', message: emailInvalid });
-        return null;
-      }
-      const cpfRaw = window.prompt(cpfPrompt, '');
-      if (cpfRaw === null) return null;
-      const cpfCnpj = String(cpfRaw).replace(/\D/g, '');
-      if (!(cpfCnpj.length === 11 || cpfCnpj.length === 14)) {
-        if (tg && tg.showPopup) tg.showPopup({ title: '', message: cpfInvalid });
-        return null;
-      }
-      const phoneRaw = window.prompt(phonePrompt, '');
-      if (phoneRaw === null) return null;
-      const phone = String(phoneRaw).replace(/\D/g, '');
-      if (!(phone.length === 10 || phone.length === 11)) {
-        if (tg && tg.showPopup) tg.showPopup({ title: '', message: phoneInvalid });
-        return null;
-      }
-      return { fullName, email, cpfCnpj, phone };
-    }
-
     document.getElementById('btn-pagseguro').addEventListener('click', async function(e) {
       e.preventDefault();
       if (apiBase && tg && tg.initData) {
-        const buyer = askBuyerData();
-        if (!buyer) return;
         try {
-          const r = await fetch(apiBase + '/webapp/asaas/checkout', {
+          const r = await fetch(apiBase + '/webapp/pagseguro/checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              initData: tg.initData,
-              fullName: buyer.fullName,
-              email: buyer.email,
-              cpfCnpj: buyer.cpfCnpj,
-              phone: buyer.phone
-            })
+            body: JSON.stringify({ initData: tg.initData })
           });
           const data = await r.json().catch(() => ({}));
           if (data.payment_url) {
@@ -663,17 +602,17 @@
           const errMsg = data.error || (r.ok ? '' : 'Erro ' + r.status);
           if (errMsg && tg.showPopup) tg.showPopup({ title: '', message: errMsg });
         } catch (err) {
-          if (tg && tg.showPopup) tg.showPopup({ title: '', message: (t('save_no_api') || 'Não foi possível conectar. Verifique se o bot está com a API ativa (porta 8080).') });
+          if (tg.showPopup) tg.showPopup({ title: '', message: (t('save_no_api') || 'Não foi possível conectar. Verifique se o bot está com a API ativa (porta 8080).') });
         }
         return;
       }
-      if (asaasUrl && asaasUrl.indexOf('SEU_LINK') === -1) {
-        if (tg && tg.openLink) tg.openLink(asaasUrl); else window.open(asaasUrl, '_blank');
+      if (pagseguroUrl && pagseguroUrl.indexOf('SEU_LINK') === -1) {
+        if (tg && tg.openLink) tg.openLink(pagseguroUrl); else window.open(pagseguroUrl, '_blank');
       } else if (tg && tg.showPopup) {
         tg.showPopup({ title: '', message: t('save_no_api') || 'Configure a API (WEBAPP_API_PORT=8080) e use a URL do túnel na porta 8080 no menu.' });
       }
     });
-    document.getElementById('btn-pagseguro').href = asaasUrl.indexOf('SEU_LINK') === -1 ? asaasUrl : '#';
+    document.getElementById('btn-pagseguro').href = pagseguroUrl.indexOf('SEU_LINK') === -1 ? pagseguroUrl : '#';
 
     const mainLangSelect = document.getElementById('main-lang');
     if (mainLangSelect && ['pt','en','es','fr','de','it','ja','zh','ru','ko'].includes(LANG)) {
