@@ -1127,11 +1127,12 @@
         a.addEventListener('click', function(e) {
           e.preventDefault();
           const url = this.getAttribute('href');
-          // openTelegramLink abre dentro do Telegram e envia o /start para o bot
+          // openTelegramLink abre no chat do bot e envia /start rp_<id> — bot inicia a história
           if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
           else if (tg && tg.openLink) tg.openLink(url);
           else window.open(url, '_blank');
-          if (tg && tg.close) tg.close();
+          // Fecha o menu para o usuário ver o chat do bot recebendo a história
+          setTimeout(function() { if (tg && tg.close) tg.close(); }, 300);
         });
       });
     }
