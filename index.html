@@ -1084,13 +1084,6 @@
     document.getElementById('btn-close').onclick = () => { if (tg && tg.close) tg.close(); };
 
     // Valores estáticos para teste (pré-preenchem os prompts; apague em produção se quiser)
-    var BUYER_DEFAULTS = {
-      fullName: 'Teste Silva',
-      email: 'teste@email.com',
-      cpfCnpj: '12345678909',
-      phone: '11999998888'
-    };
-
     function askBuyerData() {
       const namePrompt = LANG === 'es'
         ? 'Ingresa tu nombre completo:'
@@ -1118,11 +1111,10 @@
         : (LANG === 'en' ? 'Invalid phone number.' : 'Telefone inválido.');
 
       var prefill = window._buyerPrefill || {};
-      var def = BUYER_DEFAULTS || {};
-      var defaultName = prefill.fullName || def.fullName || (typeof getTelegramName === 'function' ? getTelegramName() : '') || '';
-      var defaultEmail = prefill.email || def.email || '';
-      var defaultCpf = prefill.cpfCnpj || def.cpfCnpj || '';
-      var defaultPhone = prefill.phone || def.phone || '';
+      var defaultName = prefill.fullName || (typeof getTelegramName === 'function' ? getTelegramName() : '') || '';
+      var defaultEmail = prefill.email || '';
+      var defaultCpf = prefill.cpfCnpj || '';
+      var defaultPhone = prefill.phone || '';
 
       const fullName = (window.prompt(namePrompt, defaultName) || '').trim();
       if (!fullName) return null;
