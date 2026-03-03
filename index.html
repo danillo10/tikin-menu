@@ -28,29 +28,34 @@
       border-radius: 16px;
     }
 
-    /* Nav por ícones */
+    /* Nav por ícones — barra maior para caber todos os itens (incl. Role Play) */
     .nav {
       display: flex;
       justify-content: space-around;
       align-items: center;
+      flex-wrap: wrap;
       background: var(--tg-theme-secondary-bg-color, #2d2d44);
       border-radius: 16px;
       margin: 0 16px 20px;
-      padding: 10px 8px;
-      gap: 4px;
+      padding: 12px 6px 14px;
+      gap: 6px;
+      min-height: 64px;
     }
     .nav-item {
       flex: 1;
+      min-width: 52px;
+      max-width: 72px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 10px 6px;
+      padding: 8px 4px;
       border-radius: 12px;
       text-decoration: none;
       color: var(--tg-theme-hint-color, #999);
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       font-weight: 600;
+      line-height: 1.2;
       transition: background 0.2s, color 0.2s;
     }
     .nav-item:active { opacity: 0.9; }
@@ -59,10 +64,11 @@
       color: var(--tg-theme-button-text-color, #fff);
     }
     .nav-item .icon {
-      font-size: 1.5rem;
-      margin-bottom: 4px;
+      font-size: 1.35rem;
+      margin-bottom: 2px;
       line-height: 1;
     }
+    .nav-item .label { text-align: center; }
 
     /* Seções (uma visível por vez) */
     .section-page {
