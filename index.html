@@ -1202,41 +1202,6 @@
             if (manualWrapEl) manualWrapEl.style.display = 'block';
             setPendingCheckout(data.checkout_id || '1');
             startPaymentAutoConfirm();
-            // Não há como abrir automaticamente após fetch — mostra botão prominente
-            if (false) {
-              try {
-                window.open(data.payment_url, '_blank');
-                opened = true;
-              } catch (e) {}
-            }
-            if (!opened) {
-              try {
-                const a = document.createElement('a');
-                a.href = data.payment_url;
-                a.target = '_blank';
-                a.rel = 'noopener noreferrer';
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                opened = true;
-              } catch (e) {}
-            }
-            if (!opened) {
-              try {
-                window.open(data.payment_url, '_blank');
-                opened = true;
-              } catch (e) {}
-            }
-            if (!opened && tg && tg.showPopup) {
-              tg.showPopup({
-                title: '',
-                message: (LANG === 'es'
-                  ? 'No fue posible abrir el pago automáticamente. Intenta de nuevo.'
-                  : (LANG === 'en'
-                    ? 'Could not open payment automatically. Please try again.'
-                    : 'Não foi possível abrir o pagamento automaticamente. Tente novamente.')),
-              });
-            }
             return;
           }
           const errMsg = data.error || (r.ok ? (LANG === 'es' ? 'No se recibió link de pago.' : (LANG === 'en' ? 'Payment link not returned.' : 'Link de pagamento não retornado.')) : 'Erro ' + r.status);
