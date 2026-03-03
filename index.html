@@ -797,6 +797,41 @@
       }
     }
 
+    // Checa pagamento silenciosamente sem precisar de estado awaitingPaymentConfirmation
+    async function silentCheckPayment() {
+      if (!apiBase || !tg || !tg.initData) return;
+      if ((userPlan || '').toLowerCase() === 'pro') return;
+      try {
+        const r = await fetch(apiBase + '/webapp/asaas/confirm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ initData: tg.initData })
+        });
+        const data = await r.json().catch(() => ({}));
+        if (r.ok && data.paid) {
+          stopPaymentAutoConfirm();
+          userPlan = 'pro';
+          userProSignedAt = userProSignedAt || new Date().toISOString();
+          userProUntil = data.pro_until || userProUntil;
+          userGraceUntil = data.grace_until || userGraceUntil;
+          updatePlanUI();
+          updatePaymentSubscriptionUI();
+          const manualWrapEl = document.getElementById('payment-manual-open');
+          if (manualWrapEl) manualWrapEl.style.display = 'none';
+          if (tg && tg.showPopup) {
+            tg.showPopup({
+              title: '',
+              message: (LANG === 'es'
+                ? '🎉 ¡Pago confirmado! Tu plan Pro ya está activo.'
+                : (LANG === 'en'
+                  ? '🎉 Payment confirmed! Your Pro plan is now active.'
+                  : '🎉 Pagamento confirmado! Seu plano Pro já está ativo.')),
+            });
+          }
+        }
+      } catch (e) {}
+    }
+
     async function tryAutoConfirmPayment(showPendingMessage) {
       if (!awaitingPaymentConfirmation || !apiBase || !tg || !tg.initData) return false;
       try {
@@ -1112,14 +1147,14 @@
     });
     document.getElementById('btn-pagseguro').href = asaasUrl.indexOf('SEU_LINK') === -1 ? asaasUrl : '#';
     document.addEventListener('visibilitychange', () => {
-      if (!document.hidden && awaitingPaymentConfirmation) {
-        tryAutoConfirmPayment(false);
+      if (!document.hidden) {
+        if (awaitingPaymentConfirmation) tryAutoConfirmPayment(false);
+        else silentCheckPayment();
       }
     });
     window.addEventListener('focus', () => {
-      if (awaitingPaymentConfirmation) {
-        tryAutoConfirmPayment(false);
-      }
+      if (awaitingPaymentConfirmation) tryAutoConfirmPayment(false);
+      else silentCheckPayment();
     });
 
     const mainLangSelect = document.getElementById('main-lang');
@@ -1161,6 +1196,10 @@
         updatePlanUI();
         updatePaymentSubscriptionUI();
         updateLevelAccessUI();
+        // Checa silenciosamente se há pagamento pendente confirmado
+        if ((userPlan || '').toLowerCase() !== 'pro') {
+          silentCheckPayment();
+        }
       } catch (e) {}
     }
     function getTelegramName() {
