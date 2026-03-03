@@ -832,18 +832,26 @@
           updatePaymentSubscriptionUI();
           const manualWrapEl = document.getElementById('payment-manual-open');
           if (manualWrapEl) manualWrapEl.style.display = 'none';
-          if (tg && tg.showPopup) {
-            tg.showPopup({
-              title: '',
-              message: (LANG === 'es'
-                ? '🎉 ¡Pago confirmado! Tu plan Pro ya está activo.'
-                : (LANG === 'en'
-                  ? '🎉 Payment confirmed! Your Pro plan is now active.'
-                  : '🎉 Pagamento confirmado! Seu plano Pro já está ativo.')),
-            });
-          }
+          _onProActivated();
         }
       } catch (e) {}
+    }
+
+    // Chamado quando Pro é confirmado em qualquer fluxo
+    function _onProActivated() {
+      const msg = (LANG === 'es'
+        ? '🎉 ¡Pago confirmado! Tu plan Pro ya está activo. Vuelve al chat para empezar.'
+        : (LANG === 'en'
+          ? '🎉 Payment confirmed! Your Pro plan is now active. Return to chat to start.'
+          : '🎉 Pagamento confirmado! Seu plano Pro está ativo. Volte ao chat para começar.'));
+      if (tg && tg.showPopup) {
+        tg.showPopup({ title: '✅ Pro ativo!', message: msg }, () => {
+          // Fecha o menu e volta pro chat após o usuário dispensar o popup
+          if (tg && tg.close) tg.close();
+        });
+      } else if (tg && tg.close) {
+        tg.close();
+      }
     }
 
     async function tryAutoConfirmPayment(showPendingMessage) {
@@ -864,18 +872,10 @@
           userProUntil = data.pro_until || userProUntil;
           userGraceUntil = data.grace_until || userGraceUntil;
           updatePlanUI();
+          updatePaymentSubscriptionUI();
           const manualWrapEl = document.getElementById('payment-manual-open');
           if (manualWrapEl) manualWrapEl.style.display = 'none';
-          if (tg && tg.showPopup) {
-            tg.showPopup({
-              title: '',
-              message: (LANG === 'es'
-                ? '🎉 ¡Pago confirmado! Tu plan Pro ya está activo.'
-                : (LANG === 'en'
-                  ? '🎉 Payment confirmed! Your Pro plan is now active.'
-                  : '🎉 Pagamento confirmado! Seu plano Pro já está ativo.')),
-            });
-          }
+          _onProActivated();
           return true;
         }
         if (showPendingMessage && tg && tg.showPopup) {
