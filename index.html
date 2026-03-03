@@ -797,10 +797,22 @@
       }
     }
 
-    // Checa pagamento silenciosamente sem precisar de estado awaitingPaymentConfirmation
+    // Guarda/limpa checkout pendente no localStorage
+    function setPendingCheckout(checkoutId) {
+      try { localStorage.setItem('tikin_pending_checkout', checkoutId || '1'); } catch(e) {}
+    }
+    function clearPendingCheckout() {
+      try { localStorage.removeItem('tikin_pending_checkout'); } catch(e) {}
+    }
+    function hasPendingCheckout() {
+      try { return !!localStorage.getItem('tikin_pending_checkout'); } catch(e) { return false; }
+    }
+
+    // Checa pagamento silenciosamente — só roda se houver checkout pendente registrado
     async function silentCheckPayment() {
+      if (!hasPendingCheckout()) return;
       if (!apiBase || !tg || !tg.initData) return;
-      if ((userPlan || '').toLowerCase() === 'pro') return;
+      if ((userPlan || '').toLowerCase() === 'pro') { clearPendingCheckout(); return; }
       try {
         const r = await fetch(apiBase + '/webapp/asaas/confirm', {
           method: 'POST',
@@ -809,6 +821,7 @@
         });
         const data = await r.json().catch(() => ({}));
         if (r.ok && data.paid) {
+          clearPendingCheckout();
           stopPaymentAutoConfirm();
           userPlan = 'pro';
           userProSignedAt = userProSignedAt || new Date().toISOString();
@@ -842,6 +855,7 @@
         });
         const data = await r.json().catch(() => ({}));
         if (r.ok && data.paid) {
+          clearPendingCheckout();
           stopPaymentAutoConfirm();
           userPlan = 'pro';
           userProSignedAt = userProSignedAt || new Date().toISOString();
@@ -1070,6 +1084,7 @@
             setPaymentLoading(false);
             if (manualBtnEl) manualBtnEl.href = data.payment_url;
             if (manualWrapEl) manualWrapEl.style.display = 'block';
+            setPendingCheckout(data.checkout_id || '1');
             startPaymentAutoConfirm();
             if (tg && tg.showPopup) {
               tg.showPopup({
@@ -1183,7 +1198,10 @@
           const levelEl = document.getElementById('level-select');
           if (levelEl && levelEl.querySelector('option[value="' + data.level + '"]')) levelEl.value = data.level;
         }
-        if (data.plan) userPlan = String(data.plan).toLowerCase();
+        if (data.plan) {
+          userPlan = String(data.plan).toLowerCase();
+          if (userPlan === 'pro') clearPendingCheckout();
+        }
         userProSignedAt = data.proSignedAt || null;
         userProUntil = data.proUntil || null;
         userGraceUntil = data.graceUntil || null;
