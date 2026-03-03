@@ -775,6 +775,7 @@
     let paymentConfirmTimer = null;
     let paymentConfirmAttempts = 0;
     let awaitingPaymentConfirmation = false;
+    let silentPollTimer = null;
 
     function setPaymentLoading(isLoading) {
       paymentInFlight = isLoading;
@@ -791,10 +792,28 @@
     function stopPaymentAutoConfirm() {
       awaitingPaymentConfirmation = false;
       paymentConfirmAttempts = 0;
-      if (paymentConfirmTimer) {
-        clearInterval(paymentConfirmTimer);
-        paymentConfirmTimer = null;
-      }
+      if (paymentConfirmTimer) { clearInterval(paymentConfirmTimer); paymentConfirmTimer = null; }
+      stopSilentPoll();
+    }
+
+    function stopSilentPoll() {
+      if (silentPollTimer) { clearInterval(silentPollTimer); silentPollTimer = null; }
+    }
+
+    // Polling silencioso: roda quando há checkout pendente, sem precisar clicar em nada
+    function startSilentPoll() {
+      if (silentPollTimer) return; // já rodando
+      if (!hasPendingCheckout()) return;
+      let attempts = 0;
+      silentPollTimer = setInterval(async () => {
+        attempts++;
+        if (!hasPendingCheckout() || (userPlan || '').toLowerCase() === 'pro') {
+          stopSilentPoll();
+          return;
+        }
+        await silentCheckPayment();
+        if (attempts >= 36) stopSilentPoll(); // para após ~3 min (36 * 5s)
+      }, 5000);
     }
 
     // Guarda/limpa checkout pendente no localStorage
@@ -1166,12 +1185,12 @@
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) {
         if (awaitingPaymentConfirmation) tryAutoConfirmPayment(false);
-        else silentCheckPayment();
+        else { silentCheckPayment(); startSilentPoll(); }
       }
     });
     window.addEventListener('focus', () => {
       if (awaitingPaymentConfirmation) tryAutoConfirmPayment(false);
-      else silentCheckPayment();
+      else { silentCheckPayment(); startSilentPoll(); }
     });
 
     const mainLangSelect = document.getElementById('main-lang');
@@ -1216,9 +1235,10 @@
         updatePlanUI();
         updatePaymentSubscriptionUI();
         updateLevelAccessUI();
-        // Checa silenciosamente se há pagamento pendente confirmado
+        // Checa silenciosamente se há pagamento pendente confirmado e inicia polling
         if ((userPlan || '').toLowerCase() !== 'pro') {
           silentCheckPayment();
+          startSilentPoll();
         }
       } catch (e) {}
     }
