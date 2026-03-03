@@ -1127,7 +1127,9 @@
         a.addEventListener('click', function(e) {
           e.preventDefault();
           const url = this.getAttribute('href');
-          if (tg && tg.openLink) tg.openLink(url);
+          // openTelegramLink abre dentro do Telegram e envia o /start para o bot
+          if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
+          else if (tg && tg.openLink) tg.openLink(url);
           else window.open(url, '_blank');
           if (tg && tg.close) tg.close();
         });
