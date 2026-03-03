@@ -1119,13 +1119,15 @@
             }
             let opened = false;
             try {
-              // Prioriza redirecionamento direto para evitar bloqueio de popup em WebView mobile.
-              window.location.assign(data.payment_url);
-              opened = true;
+              // Abre em navegador externo — mantém o WebApp (menu) aberto para detectar pagamento
+              if (tg && tg.openLink) {
+                tg.openLink(data.payment_url);
+                opened = true;
+              }
             } catch (e) {}
             if (!opened) {
               try {
-                if (tg && tg.openLink) tg.openLink(data.payment_url);
+                window.open(data.payment_url, '_blank');
                 opened = true;
               } catch (e) {}
             }
