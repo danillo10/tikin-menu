@@ -70,6 +70,20 @@
       animation: fade 0.2s ease;
     }
     .section-page.active { display: block; }
+
+    .roleplay-list { margin-top: 16px; }
+    .roleplay-group { margin-bottom: 20px; }
+    .roleplay-group-title { font-size: 1rem; font-weight: 700; margin-bottom: 8px; color: var(--tg-theme-button-color, #3b82f6); }
+    .roleplay-cat-title { font-size: 0.9rem; font-weight: 600; margin: 12px 0 6px; opacity: 0.9; }
+    .roleplay-card {
+      display: block; width: 100%; text-align: left; padding: 14px 16px; margin-bottom: 8px;
+      background: var(--tg-theme-secondary-bg-color, #2d2d44); border-radius: 12px; border: none;
+      color: var(--tg-theme-text-color, #eee); font-size: 15px; cursor: pointer;
+      text-decoration: none; box-sizing: border-box;
+    }
+    .roleplay-card:active { opacity: 0.9; }
+    .roleplay-card .title { font-weight: 600; }
+    .roleplay-card .meta { font-size: 12px; opacity: 0.8; margin-top: 4px; }
     @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 
     .section-title {
@@ -370,6 +384,10 @@
         <span class="icon">📊</span>
         <span class="label" data-i18n="nav_level">Level</span>
       </a>
+      <a href="#" class="nav-item" data-page="roleplay" role="tab">
+        <span class="icon">🎭</span>
+        <span class="label" data-i18n="nav_roleplay">Role Play</span>
+      </a>
     </nav>
 
     <!-- HOME -->
@@ -515,6 +533,15 @@
       <button type="button" id="btn-save-level" class="btn btn-primary" data-i18n="btn_save">Save</button>
       <button type="button" class="btn btn-close" data-action="close" data-i18n="btn_close">Close</button>
     </section>
+
+    <!-- ROLE PLAY -->
+    <section id="page-roleplay" class="section-page">
+      <h2 class="section-title" data-i18n="roleplay_title">🎭 Role Play</h2>
+      <p class="section-desc" data-i18n="roleplay_desc">Escolha uma história. O bot inicia a conversa no chat. Exclusivo Pro.</p>
+      <p class="section-desc" style="margin-top:8px;font-weight:600;" data-i18n="roleplay_pro_badge">⭐ Exclusivo para assinantes Pro</p>
+      <div id="roleplay-list" class="roleplay-list"></div>
+    </section>
+
     <div id="save-status" class="status-bar"></div>
   </div>
   <div id="payment-loading" class="loading-overlay" aria-hidden="true">
@@ -530,6 +557,30 @@
 
     const params = new URLSearchParams(window.location.search);
     const botName = params.get('bot') || '';
+    const BOT_USERNAME = botName || 'espanol_bot_br';
+
+    // Lista de Role Plays (espelha bot/roleplay.py) — id usado no deep link rp_<id>
+    const ROLEPLAY_STORIES = [
+      { audience: 'children', audienceLabel: '👧 Infantil', categoryLabel: '🧚 Contos de Fadas', id: 'lost_princess', title: 'A Princesa Perdida', subtitle: 'Ajude a princesa a encontrar o castelo!', difficulty: '🟢 Iniciante' },
+      { audience: 'children', audienceLabel: '👧 Infantil', categoryLabel: '🧚 Contos de Fadas', id: 'talking_dragon', title: 'O Dragão Amigável', subtitle: 'Faça amizade com o dragão solitário!', difficulty: '🟢 Iniciante' },
+      { audience: 'children', audienceLabel: '👧 Infantil', categoryLabel: '🦁 Aventura Animal', id: 'zoo_day', title: 'Um Dia no Zoológico', subtitle: 'Os animais falam com você hoje!', difficulty: '🟢 Iniciante' },
+      { audience: 'children', audienceLabel: '👧 Infantil', categoryLabel: '🦁 Aventura Animal', id: 'jungle_guide', title: 'Guia na Selva', subtitle: 'Explore a selva com seu guia especial!', difficulty: '🟢 Iniciante' },
+      { audience: 'children', audienceLabel: '👧 Infantil', categoryLabel: '🚀 Espaço', id: 'mars_mission', title: 'Missão em Marte', subtitle: 'Você é astronauta explorando Marte!', difficulty: '🟡 Intermediário' },
+      { audience: 'children', audienceLabel: '👧 Infantil', categoryLabel: '🚀 Espaço', id: 'friendly_alien', title: 'O Alienígena Amigável', subtitle: 'Ensine um alienígena sobre a Terra!', difficulty: '🟢 Iniciante' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🛒 Dia a Dia', id: 'market', title: 'No Mercado Local', subtitle: 'Compre frutas e pratique preços!', difficulty: '🟡 Intermediário' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🛒 Dia a Dia', id: 'restaurant', title: 'Jantar no Restaurante', subtitle: 'Faça seu pedido em espanhol!', difficulty: '🟡 Intermediário' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🛒 Dia a Dia', id: 'doctor', title: 'Consulta Médica', subtitle: 'Descreva seus sintomas em espanhol!', difficulty: '🟡 Intermediário' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '✈️ Viagens', id: 'lost_city', title: 'Perdido em Barcelona', subtitle: 'Peça direções pela cidade!', difficulty: '🟡 Intermediário' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '✈️ Viagens', id: 'hotel', title: 'Check-in no Hotel', subtitle: 'Reserve seu quarto e resolva problemas!', difficulty: '🟡 Intermediário' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '💼 Negócios', id: 'job_interview', title: 'Entrevista de Emprego', subtitle: 'Impressione na entrevista profissional!', difficulty: '🔴 Avançado' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '💼 Negócios', id: 'business_meeting', title: 'Reunião de Negócios', subtitle: 'Apresente seu projeto em espanhol!', difficulty: '🔴 Avançado' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🕵️ Mistério', id: 'missing_artifact', title: 'O Artefato Desaparecido', subtitle: 'Resolva o mistério do museu!', difficulty: '🔴 Avançado' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🕵️ Mistério', id: 'mysterious_letter', title: 'A Carta Misteriosa', subtitle: 'Decifre as pistas e resolva o enigma!', difficulty: '🔴 Avançado' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '💝 Romance', id: 'first_date', title: 'Primeiro Encontro', subtitle: 'Pratique conversas românticas!', difficulty: '🟡 Intermediário' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🏛️ Viagem no Tempo', id: 'ancient_rome', title: 'Roma Antiga', subtitle: 'Converse com um cidadão romano!', difficulty: '🔴 Avançado' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🏛️ Viagem no Tempo', id: 'renaissance_artist', title: 'Renascimento Italiano', subtitle: 'Conheça um artista da Renascença!', difficulty: '🔴 Avançado' },
+    ];
+
     // URL fixa da API (Railway) – ignora qualquer api= na URL para evitar URLs antigas em cache
     var DEFAULT_API_BASE = 'https://tikin-webhook-production.up.railway.app';
     try { localStorage.removeItem('tikin_api_base'); } catch(e) {}
@@ -558,6 +609,10 @@
         nav_payment: 'Payment',
         nav_languages: 'Languages',
         nav_level: 'Level',
+        nav_roleplay: 'Role Play',
+        roleplay_title: '🎭 Role Play',
+        roleplay_desc: 'Choose a story. The bot will start the conversation in the chat. Exclusive for Pro.',
+        roleplay_pro_badge: '⭐ Exclusive for Pro subscribers',
         level_title: 'Practice level',
         level_desc: 'Choose the level of the conversations with the bot.',
         level_label: 'Level',
@@ -623,6 +678,10 @@
         nav_payment: 'Pagamento',
         nav_languages: 'Idiomas',
         nav_level: 'Nível',
+        nav_roleplay: 'Role Play',
+        roleplay_title: '🎭 Role Play',
+        roleplay_desc: 'Escolha uma história. O bot inicia a conversa no chat. Exclusivo Pro.',
+        roleplay_pro_badge: '⭐ Exclusivo para assinantes Pro',
         level_title: 'Nível de prática',
         level_desc: 'Escolha o nível das conversas com o bot.',
         level_label: 'Nível',
@@ -688,6 +747,10 @@
         nav_payment: 'Pago',
         nav_languages: 'Idiomas',
         nav_level: 'Nivel',
+        nav_roleplay: 'Role Play',
+        roleplay_title: '🎭 Role Play',
+        roleplay_desc: 'Elige una historia. El bot iniciará la conversación en el chat. Exclusivo Pro.',
+        roleplay_pro_badge: '⭐ Exclusivo para suscriptores Pro',
         level_title: 'Nivel de práctica',
         level_desc: 'Elige el nivel de las conversaciones con el bot.',
         level_label: 'Nivel',
@@ -1026,6 +1089,41 @@
       const nav = document.querySelector('.nav-item[data-page="' + pageId + '"]');
       if (page) page.classList.add('active');
       if (nav) nav.classList.add('active');
+      if (pageId === 'roleplay') renderRoleplayList();
+    }
+
+    function renderRoleplayList() {
+      const container = document.getElementById('roleplay-list');
+      if (!container) return;
+      const groups = {};
+      ROLEPLAY_STORIES.forEach(s => {
+        const key = s.audience + '|' + s.categoryLabel;
+        if (!groups[key]) groups[key] = { audienceLabel: s.audienceLabel, categoryLabel: s.categoryLabel, stories: [] };
+        groups[key].stories.push(s);
+      });
+      let html = '';
+      Object.values(groups).forEach(g => {
+        html += '<div class="roleplay-group">';
+        html += '<div class="roleplay-group-title">' + g.audienceLabel + ' · ' + g.categoryLabel + '</div>';
+        g.stories.forEach(s => {
+          const url = 'https://t.me/' + BOT_USERNAME + '?start=rp_' + s.id;
+          html += '<a href="' + url + '" class="roleplay-card" data-rp-id="' + s.id + '" target="_blank" rel="noopener">';
+          html += '<span class="title">' + s.title + '</span> <span class="meta">' + s.difficulty + '</span>';
+          html += '<div class="meta">' + s.subtitle + '</div>';
+          html += '</a>';
+        });
+        html += '</div>';
+      });
+      container.innerHTML = html;
+      container.querySelectorAll('.roleplay-card').forEach(a => {
+        a.addEventListener('click', function(e) {
+          e.preventDefault();
+          const url = this.getAttribute('href');
+          if (tg && tg.openLink) tg.openLink(url);
+          else window.open(url, '_blank');
+          if (tg && tg.close) tg.close();
+        });
+      });
     }
 
     function formatDateToUser(isoValue) {
