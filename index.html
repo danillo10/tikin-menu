@@ -528,7 +528,9 @@
 
     const params = new URLSearchParams(window.location.search);
     const botName = params.get('bot') || '';
-    let apiBase = (params.get('api') || '').replace(/\/$/, '');
+    // Fallback: use esta URL quando o bot abrir o menu sem api= (ex.: WEBAPP_API_PUBLIC_URL no .env do bot)
+    var DEFAULT_API_BASE = '';
+    let apiBase = (params.get('api') || DEFAULT_API_BASE || '').replace(/\/$/, '');
     if (!apiBase && tg && window.location.origin) apiBase = window.location.origin;
     const asaasUrl = params.get('asaas') || '';
 
