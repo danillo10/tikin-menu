@@ -1101,6 +1101,8 @@
     function renderRoleplayList() {
       const container = document.getElementById('roleplay-list');
       if (!container) return;
+      // Username do bot: prioridade 1 = API (config), 2 = URL (?bot=), 3 = fallback
+      const effectiveBotUsername = (window.__botUsernameForRoleplay || BOT_USERNAME || '').trim() || 'espanol_bot_br';
       const groups = {};
       ROLEPLAY_STORIES.forEach(s => {
         const key = s.audience + '|' + s.categoryLabel;
@@ -1112,7 +1114,7 @@
         html += '<div class="roleplay-group">';
         html += '<div class="roleplay-group-title">' + g.audienceLabel + ' · ' + g.categoryLabel + '</div>';
         g.stories.forEach(s => {
-          const url = 'https://t.me/' + BOT_USERNAME + '?start=rp_' + s.id;
+          const url = 'https://t.me/' + effectiveBotUsername + '?start=rp_' + s.id;
           html += '<a href="' + url + '" class="roleplay-card" data-rp-id="' + s.id + '" target="_blank" rel="noopener">';
           html += '<span class="title">' + s.title + '</span> <span class="meta">' + s.difficulty + '</span>';
           html += '<div class="meta">' + s.subtitle + '</div>';
@@ -1384,6 +1386,8 @@
         updatePlanUI();
         updatePaymentSubscriptionUI();
         updateLevelAccessUI();
+        // Username do bot vindo da API (para links Role Play) — evita "nome de usuário não encontrado"
+        window.__botUsernameForRoleplay = (data.botUsername || '').trim();
         // Checa silenciosamente se há pagamento pendente confirmado e inicia polling
         if ((userPlan || '').toLowerCase() !== 'pro') {
           silentCheckPayment();
