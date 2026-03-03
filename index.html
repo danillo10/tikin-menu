@@ -531,7 +531,7 @@
     const params = new URLSearchParams(window.location.search);
     const botName = params.get('bot') || '';
     // URL fixa da API (Railway) – ignora qualquer api= na URL para evitar URLs antigas em cache
-    var DEFAULT_API_BASE = 'https://language-telegram-bot-production.up.railway.app';
+    var DEFAULT_API_BASE = 'https://tikin-webhook-production.up.railway.app';
     try { localStorage.removeItem('tikin_api_base'); } catch(e) {}
     let apiBase = DEFAULT_API_BASE;
     const asaasUrl = params.get('asaas') || '';
