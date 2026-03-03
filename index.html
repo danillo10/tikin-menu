@@ -614,7 +614,7 @@
         btn_close: 'Close',
         save_ok: 'Saved!',
         save_error: 'Could not save. Try again.',
-        save_no_api: 'API not configured. Add &api= to the menu URL to save.'
+        save_no_api: 'Could not connect to the API. Please try again.'
       },
       pt: {
         nav_home: 'Início',
@@ -679,7 +679,7 @@
         btn_close: 'Fechar',
         save_ok: 'Salvo!',
         save_error: 'Não foi possível salvar. Tente novamente.',
-        save_no_api: 'API não configurada. Adicione &api= na URL do menu para salvar.'
+        save_no_api: 'Não foi possível conectar à API. Tente novamente.'
       },
       es: {
         nav_home: 'Inicio',
@@ -744,7 +744,7 @@
         btn_close: 'Cerrar',
         save_ok: '¡Guardado!',
         save_error: 'No se pudo guardar. Intenta de nuevo.',
-        save_no_api: 'API no configurada. Añade &api= en la URL del menú para guardar.'
+        save_no_api: 'No se pudo conectar a la API. Intenta de nuevo.'
       },
       fr: { nav_home: 'Accueil', nav_plan: 'Mon forfait', nav_payment: 'Paiement', nav_languages: 'Langues', home_title: 'Bienvenue sur Tikin Languages', home_desc: 'Pratiquez les langues sur Telegram avec l\'IA.', home_see_plan: 'Voir mon forfait', home_upgrade: 'Passer à Pro', plan_title: 'Mon forfait', plan_desc: 'Votre forfait actuel et Pro.', plan_basic: 'Basic', plan_current: 'Actuel', plan_basic_1: 'Pratique limitée par jour', plan_basic_2: 'Chat texte', plan_basic_3: 'Corrections de base', plan_pro: 'Pro', plan_recommended: 'Recommandé', plan_pro_1: 'Pratique illimitée', plan_pro_2: 'Messages vocaux', plan_pro_3: 'Corrections avancées', plan_pro_4: 'Support prioritaire', plan_cta: 'Passez à Pro.', plan_upgrade_btn: 'Passer à Pro', payment_title: 'Passer à Pro', payment_desc: 'Pratique illimitée et voix.', payment_period: 'par mois', payment_benefit_1: '✓ Conversations illimitées', payment_benefit_2: '✓ Voix', payment_benefit_3: '✓ Toutes les langues', payment_benefit_4: '✓ Sans limites', payment_btn: 'Payer avec Asaas', lang_title: 'Langues', lang_desc: 'Votre langue et celle à apprendre.', lang_main_label: 'Langue principale', lang_learn_label: 'Langue à apprendre', lang_open_telegram: 'Ouvrir dans Telegram', btn_save: 'Enregistrer', btn_close: 'Fermer' },
       de: { nav_home: 'Start', nav_plan: 'Mein Plan', nav_payment: 'Zahlung', nav_languages: 'Sprachen', home_title: 'Willkommen bei Tikin Languages', home_desc: 'Sprachen mit KI in Telegram üben.', home_see_plan: 'Meinen Plan ansehen', home_upgrade: 'Auf Pro upgraden', plan_title: 'Mein Plan', plan_desc: 'Ihr aktueller Plan und Pro.', plan_basic: 'Basic', plan_current: 'Aktuell', plan_basic_1: 'Begrenzte Übung pro Tag', plan_basic_2: 'Text-Chat', plan_basic_3: 'Grundkorrekturen', plan_pro: 'Pro', plan_recommended: 'Empfohlen', plan_pro_1: 'Unbegrenzte Übung', plan_pro_2: 'Sprachnachrichten', plan_pro_3: 'Erweiterte Korrekturen', plan_pro_4: 'Prioritäts-Support', plan_cta: 'Upgrade auf Pro.', plan_upgrade_btn: 'Auf Pro upgraden', payment_title: 'Auf Pro upgraden', payment_desc: 'Unbegrenzte Übung und Sprache.', payment_period: 'pro Monat', payment_benefit_1: '✓ Unbegrenzte Gespräche', payment_benefit_2: '✓ Sprache', payment_benefit_3: '✓ Alle Sprachen', payment_benefit_4: '✓ Keine Limits', payment_btn: 'Mit Asaas bezahlen', lang_title: 'Sprachen', lang_desc: 'Ihre Sprache und Lernsprache.', lang_main_label: 'Hauptsprache', lang_learn_label: 'Zu lernende Sprache', lang_open_telegram: 'In Telegram öffnen', btn_save: 'Speichern', btn_close: 'Schließen' },
@@ -1098,7 +1098,7 @@
               : (LANG === 'en'
                 ? 'The API took too long to respond. Please try again in a few seconds.'
                 : 'A API demorou para responder. Tente novamente em alguns segundos.'))
-            : (t('save_no_api') || 'Não foi possível conectar. Verifique se o bot está com a API ativa (porta 8080).');
+            : (t('save_no_api') || 'Não foi possível conectar à API. Tente novamente.');
           if (tg.showPopup) tg.showPopup({ title: '', message: errText });
         } finally {
           setPaymentLoading(false);
@@ -1108,7 +1108,7 @@
       if (asaasUrl && asaasUrl.indexOf('SEU_LINK') === -1) {
         if (tg && tg.openLink) tg.openLink(asaasUrl); else window.open(asaasUrl, '_blank');
       } else if (tg && tg.showPopup) {
-        tg.showPopup({ title: '', message: t('save_no_api') || 'Configure a API (WEBAPP_API_PORT=8080) e use a URL do túnel na porta 8080 no menu.' });
+        tg.showPopup({ title: '', message: t('save_no_api') || 'Não foi possível conectar à API. Tente novamente.' });
       }
     });
     document.getElementById('btn-pagseguro').href = asaasUrl.indexOf('SEU_LINK') === -1 ? asaasUrl : '#';
