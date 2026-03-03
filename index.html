@@ -1124,15 +1124,20 @@
       });
       container.innerHTML = html;
       container.querySelectorAll('.roleplay-card').forEach(a => {
-        a.addEventListener('click', function(e) {
+        a.addEventListener('click', async function(e) {
           e.preventDefault();
-          const url = this.getAttribute('href');
-          // openTelegramLink abre no chat do bot e envia /start rp_<id> — bot inicia a história
-          if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
-          else if (tg && tg.openLink) tg.openLink(url);
-          else window.open(url, '_blank');
-          // Fecha o menu para o usuário ver o chat do bot recebendo a história
-          setTimeout(function() { if (tg && tg.close) tg.close(); }, 300);
+          const storyId = this.getAttribute('data-rp-id');
+          if (!storyId || !apiBase || !tg || !tg.initData) return;
+          this.style.opacity = '0.6';
+          try {
+            await fetch(apiBase + '/webapp/roleplay/start', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ storyId, initData: tg.initData }),
+            });
+          } catch (err) {}
+          // Fecha o menu — o bot já enviou a mensagem com o botão no chat
+          if (tg && tg.close) tg.close();
         });
       });
     }
