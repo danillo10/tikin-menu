@@ -528,10 +528,14 @@
 
     const params = new URLSearchParams(window.location.search);
     const botName = params.get('bot') || '';
-    // Fallback: use esta URL quando o bot abrir o menu sem api= (ex.: WEBAPP_API_PUBLIC_URL no .env do bot)
-    var DEFAULT_API_BASE = '';
-    let apiBase = (params.get('api') || DEFAULT_API_BASE || '').replace(/\/$/, '');
-    if (!apiBase && tg && window.location.origin) apiBase = window.location.origin;
+    // Se api= vier na URL, salva no localStorage para usar quando a URL não tiver api=
+    var _apiFromUrl = (params.get('api') || '').replace(/\/$/, '');
+    if (_apiFromUrl) {
+      try { localStorage.setItem('tikin_api_base', _apiFromUrl); } catch(e) {}
+    }
+    var _apiFromStorage = '';
+    try { _apiFromStorage = localStorage.getItem('tikin_api_base') || ''; } catch(e) {}
+    let apiBase = (_apiFromUrl || _apiFromStorage || '').replace(/\/$/, '');
     const asaasUrl = params.get('asaas') || '';
 
     let userPlan = 'basic';
