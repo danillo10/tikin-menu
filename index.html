@@ -814,10 +814,11 @@
       if (!apiBase || !tg || !tg.initData) return;
       if ((userPlan || '').toLowerCase() === 'pro') { clearPendingCheckout(); return; }
       try {
+        const checkoutId = localStorage.getItem('tikin_pending_checkout') || '';
         const r = await fetch(apiBase + '/webapp/asaas/confirm', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ initData: tg.initData })
+          body: JSON.stringify({ initData: tg.initData, checkoutId })
         });
         const data = await r.json().catch(() => ({}));
         if (r.ok && data.paid) {
@@ -848,10 +849,11 @@
     async function tryAutoConfirmPayment(showPendingMessage) {
       if (!awaitingPaymentConfirmation || !apiBase || !tg || !tg.initData) return false;
       try {
+        const checkoutId = localStorage.getItem('tikin_pending_checkout') || '';
         const r = await fetch(apiBase + '/webapp/asaas/confirm', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ initData: tg.initData })
+          body: JSON.stringify({ initData: tg.initData, checkoutId })
         });
         const data = await r.json().catch(() => ({}));
         if (r.ok && data.paid) {
