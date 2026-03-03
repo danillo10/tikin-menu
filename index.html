@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Tikin Languages – Menu</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      margin: 0;
+      padding: 0 0 72px;
+      background: var(--tg-theme-bg-color, #1a1a2e);
+      color: var(--tg-theme-text-color, #eee);
+      min-height: 100vh;
+    }
+    .container { max-width: 360px; margin: 0 auto; padding: 0 16px; }
+
+    .logo-wrap {
+      text-align: center;
+      padding: 20px 0 12px;
+    }
+    .logo-wrap img {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+      border-radius: 16px;
+    }
+
+    /* Nav por ícones — barra maior para caber todos os itens (incl. Role Play) */
+    .nav {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      flex-wrap: wrap;
+      background: var(--tg-theme-secondary-bg-color, #2d2d44);
+      border-radius: 16px;
+      margin: 0 16px 20px;
+      padding: 12px 6px 14px;
+      gap: 6px;
+      min-height: 64px;
+    }
+    .nav-item {
+      flex: 1;
+      min-width: 52px;
+      max-width: 72px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 4px;
+      border-radius: 12px;
+      text-decoration: none;
+      color: var(--tg-theme-hint-color, #999);
+      font-size: 0.65rem;
+      font-weight: 600;
+      line-height: 1.2;
+      transition: background 0.2s, color 0.2s;
+    }
+    .nav-item:active { opacity: 0.9; }
+    .nav-item.active {
+      background: var(--tg-theme-button-color, #3b82f6);
+      color: var(--tg-theme-button-text-color, #fff);
+    }
+    .nav-item .icon {
+      font-size: 1.35rem;
+      margin-bottom: 2px;
+      line-height: 1;
+    }
+    .nav-item .label { text-align: center; }
+
+    /* Seções (uma visível por vez) */
+    .section-page {
+      display: none;
+      animation: fade 0.2s ease;
+    }
+    .section-page.active { display: block; }
+
+    .roleplay-list { margin-top: 16px; }
+    .roleplay-group { margin-bottom: 20px; }
+    .roleplay-group-title { font-size: 1rem; font-weight: 700; margin-bottom: 8px; color: var(--tg-theme-button-color, #3b82f6); }
+    .roleplay-cat-title { font-size: 0.9rem; font-weight: 600; margin: 12px 0 6px; opacity: 0.9; }
+    .roleplay-card {
+      display: block; width: 100%; text-align: left; padding: 14px 16px; margin-bottom: 8px;
+      background: var(--tg-theme-secondary-bg-color, #2d2d44); border-radius: 12px; border: none;
+      color: var(--tg-theme-text-color, #eee); font-size: 15px; cursor: pointer;
+      text-decoration: none; box-sizing: border-box;
+    }
+    .roleplay-card:active { opacity: 0.9; }
+    .roleplay-card .title { font-weight: 600; }
+    .roleplay-card .meta { font-size: 12px; opacity: 0.8; margin-top: 4px; }
+    @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+    .section-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+    }
+    .section-desc {
+      font-size: 0.9rem;
+      opacity: 0.85;
+      margin: 0 0 20px 0;
+    }
+
+    /* Home */
+    .home-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .home-actions .btn { margin-bottom: 0; }
+    .home-pro-banner {
+      display: none;
+      margin: 0 0 14px 0;
+      padding: 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 215, 64, 0.4);
+      background: linear-gradient(135deg, rgba(255,215,64,0.16) 0%, rgba(59,130,246,0.14) 100%);
+      box-shadow: 0 8px 22px rgba(0,0,0,0.22);
+    }
+    .home-pro-banner.active { display: block; }
+    .home-pro-banner .title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .home-pro-banner .desc {
+      font-size: 0.9rem;
+      opacity: 0.92;
+      margin: 0;
+      line-height: 1.35;
+    }
+
+    /* Plan: Basic vs Pro */
+    .plan-card {
+      background: var(--tg-theme-secondary-bg-color, #2d2d44);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      border: 2px solid transparent;
+    }
+    .plan-card.pro {
+      border-color: var(--tg-theme-button-color, #3b82f6);
+      background: linear-gradient(135deg, rgba(59,130,246,0.12) 0%, var(--tg-theme-secondary-bg-color, #2d2d44) 100%);
+    }
+    .plan-card h3 {
+      margin: 0 0 8px 0;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .plan-card .badge {
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.15);
+    }
+    .plan-card.pro .badge { background: var(--tg-theme-button-color, #3b82f6); }
+    .plan-card ul {
+      margin: 10px 0 0 0;
+      padding-left: 20px;
+      font-size: 0.9rem;
+      opacity: 0.9;
+      line-height: 1.5;
+    }
+    .plan-card li { margin-bottom: 4px; }
+    .upgrade-cta {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+    .subscription-status {
+      display: none;
+      background: var(--tg-theme-secondary-bg-color, #2d2d44);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 14px;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .subscription-status.active { display: block; }
+    .subscription-status .title {
+      font-size: 0.98rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .subscription-status .line {
+      font-size: 0.88rem;
+      opacity: 0.92;
+      margin-bottom: 4px;
+    }
+    .pro-celebration {
+      display: none;
+      margin-bottom: 16px;
+      padding: 18px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 215, 64, 0.45);
+      background: linear-gradient(135deg, rgba(255, 215, 64, 0.16) 0%, rgba(59, 130, 246, 0.12) 100%);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+    .pro-celebration.active { display: block; }
+    .pro-celebration .title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .pro-celebration .desc {
+      opacity: 0.92;
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+    }
+    .pro-celebration ul {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    /* Payment */
+    .price-box {
+      background: var(--tg-theme-secondary-bg-color, #2d2d44);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .price-box .price { font-size: 1.75rem; font-weight: 700; color: var(--tg-theme-button-color, #3b82f6); }
+    .price-box .period { font-size: 0.9rem; opacity: 0.85; margin-top: 4px; }
+    .pro-benefits {
+      text-align: left;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+    .pro-benefits li { margin-bottom: 6px; }
+
+    .section label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      opacity: 0.9;
+    }
+    .section select {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--tg-theme-hint-color, #555);
+      background: var(--tg-theme-secondary-bg-color, #2d2d44);
+      color: var(--tg-theme-text-color, #eee);
+      font-size: 1rem;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 40px;
+      margin-bottom: 14px;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      text-align: center;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      margin-bottom: 10px;
+    }
+    .btn:active { opacity: 0.9; }
+    .btn-primary {
+      background: var(--tg-theme-button-color, #3b82f6);
+      color: var(--tg-theme-button-text-color, #fff);
+    }
+    .btn-pagseguro {
+      background: #ffc439;
+      color: #2c5aa0;
+    }
+    .btn-secondary {
+      background: var(--tg-theme-secondary-bg-color, #2d2d44);
+      color: var(--tg-theme-text-color, #eee);
+    }
+    .btn-close {
+      margin-top: 16px;
+      background: transparent;
+      color: var(--tg-theme-link-color, #6b9fff);
+      font-weight: 500;
+    }
+    .status-bar {
+      margin: 12px 0;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.08);
+      color: #eee;
+      font-size: 0.9rem;
+      display: none;
+    }
+    .status-bar.error {
+      background: rgba(233,69,96,0.18);
+      color: #ffd7de;
+    }
+    .level-lock-note {
+      display: none;
+      margin: 0 0 12px 0;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: rgba(255, 196, 0, 0.14);
+      color: #ffe7a8;
+      font-size: 0.85rem;
+      line-height: 1.35;
+    }
+    .level-lock-note.active { display: block; }
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(1px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      pointer-events: auto;
+    }
+    .loading-overlay.active {
+      display: flex;
+    }
+    .loading-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--tg-theme-secondary-bg-color, #2d2d44);
+      color: var(--tg-theme-text-color, #eee);
+      border-radius: 12px;
+      padding: 12px 14px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.35);
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+    .loading-spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.35);
+      border-top-color: var(--tg-theme-link-color, #6b9fff);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      flex: 0 0 18px;
+    }
+    @keyframes pulse-pay {
+      0%,100% { transform: scale(1); box-shadow: 0 4px 16px rgba(46,204,113,0.35); }
+      50%      { transform: scale(1.03); box-shadow: 0 6px 24px rgba(46,204,113,0.55); }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo-wrap">
+      <img src="tikin.png" alt="Tikin Languages" />
+    </div>
+
+    <nav class="nav" role="tablist">
+      <a href="#" class="nav-item active" data-page="home" role="tab">
+        <span class="icon">🏠</span>
+        <span class="label" data-i18n="nav_home">Home</span>
+      </a>
+      <a href="#" class="nav-item" data-page="plan" role="tab">
+        <span class="icon">👑</span>
+        <span class="label" data-i18n="nav_plan">My plan</span>
+      </a>
+      <a href="#" class="nav-item" data-page="payment" role="tab">
+        <span class="icon">💳</span>
+        <span class="label" data-i18n="nav_payment">Payment</span>
+      </a>
+      <a href="#" class="nav-item" data-page="languages" role="tab">
+        <span class="icon">🌐</span>
+        <span class="label" data-i18n="nav_languages">Languages</span>
+      </a>
+      <a href="#" class="nav-item" data-page="level" role="tab">
+        <span class="icon">📊</span>
+        <span class="label" data-i18n="nav_level">Level</span>
+      </a>
+      <a href="#" class="nav-item" data-page="roleplay" role="tab">
+        <span class="icon">🎭</span>
+        <span class="label" data-i18n="nav_roleplay">Role Play</span>
+      </a>
+    </nav>
+
+    <!-- HOME -->
+    <section id="page-home" class="section-page active">
+      <h2 class="section-title" data-i18n="home_title">Welcome to Tikin Languages</h2>
+      <p class="section-desc" data-i18n="home_desc">Practice languages in Telegram with AI. Set your languages and upgrade to Pro for unlimited practice.</p>
+      <div id="home-pro-banner" class="home-pro-banner">
+        <div class="title" data-i18n="home_pro_title">✨ Plano Pro ativo!</div>
+        <p class="desc" data-i18n="home_pro_desc">Você desbloqueou a experiência completa: prática ilimitada, voz e correções avançadas.</p>
+      </div>
+      <div class="home-actions">
+        <a href="#" class="btn btn-primary" data-goto="plan" data-i18n="home_see_plan">See my plan</a>
+        <a id="home-upgrade-btn" href="#" class="btn btn-secondary" data-goto="payment" data-i18n="home_upgrade">Upgrade to Pro</a>
+        <button type="button" class="btn btn-close" id="btn-close" data-i18n="btn_close">Close</button>
+      </div>
+    </section>
+
+    <!-- MEU PLANO -->
+    <section id="page-plan" class="section-page">
+      <h2 class="section-title" data-i18n="plan_title">My plan</h2>
+      <p class="section-desc" data-i18n="plan_desc">Your current plan and what you get with Pro.</p>
+
+      <div id="plan-pro-celebration" class="pro-celebration">
+        <div class="title" data-i18n="plan_pro_celebration_title">🎉 Você é Pro! Que conquista incrível!</div>
+        <div class="desc" data-i18n="plan_pro_celebration_desc">Seu acesso premium está ativo. Aproveite tudo sem limites.</div>
+        <ul>
+          <li data-i18n="plan_pro_celebration_1">Conversas ilimitadas para evoluir mais rápido</li>
+          <li data-i18n="plan_pro_celebration_2">Recursos de voz liberados para praticar pronúncia</li>
+          <li data-i18n="plan_pro_celebration_3">Correções avançadas e suporte prioritário</li>
+        </ul>
+      </div>
+
+      <div class="plan-card" id="plan-current">
+        <h3><span id="plan-current-name" data-i18n="plan_basic">Basic</span> <span class="badge" data-i18n="plan_current">Current</span></h3>
+        <ul>
+          <li id="plan-current-feature-1" data-i18n="plan_basic_1">Limited practice per day</li>
+          <li id="plan-current-feature-2" data-i18n="plan_basic_2">Text chat with the bot</li>
+          <li id="plan-current-feature-3" data-i18n="plan_basic_3">Basic corrections</li>
+          <li id="plan-current-feature-4" data-i18n="plan_pro_4" style="display:none;">Priority support</li>
+        </ul>
+      </div>
+
+      <div class="plan-card pro">
+        <h3><span data-i18n="plan_pro">Pro</span> <span class="badge" data-i18n="plan_recommended">Recommended</span></h3>
+        <ul>
+          <li data-i18n="plan_pro_1">Unlimited practice</li>
+          <li data-i18n="plan_pro_2">Voice messages (speak & listen)</li>
+          <li data-i18n="plan_pro_3">Advanced corrections & tips</li>
+          <li data-i18n="plan_pro_4">Priority support</li>
+        </ul>
+        <p class="upgrade-cta" data-i18n="plan_cta">Unlock your full potential — upgrade now.</p>
+        <a href="#" class="btn btn-primary" data-goto="payment" data-i18n="plan_upgrade_btn">Upgrade to Pro</a>
+      </div>
+    </section>
+
+    <!-- PAGAMENTO -->
+    <section id="page-payment" class="section-page">
+      <h2 class="section-title" data-i18n="payment_title">Upgrade to Pro</h2>
+      <p class="section-desc" data-i18n="payment_desc">Get unlimited practice and voice features. Cancel anytime.</p>
+
+      <div class="price-box">
+        <div class="price">R$ 5,00</div>
+        <div class="period" data-i18n="payment_period">per month · cancel anytime</div>
+        <ul class="pro-benefits">
+          <li data-i18n="payment_benefit_1">✓ Unlimited conversations</li>
+          <li data-i18n="payment_benefit_2">✓ Voice in & out</li>
+          <li data-i18n="payment_benefit_3">✓ All languages</li>
+          <li data-i18n="payment_benefit_4">✓ No ads, no limits</li>
+        </ul>
+      </div>
+      <div id="subscription-status" class="subscription-status">
+        <div class="title" data-i18n="payment_subscription_title">Seu plano Pro está ativo</div>
+        <div class="line"><strong data-i18n="payment_subscription_signed">Assinado em:</strong> <span id="sub-signed-at">-</span></div>
+        <div class="line"><strong data-i18n="payment_subscription_until">Ativo até:</strong> <span id="sub-pro-until">-</span></div>
+        <div class="line"><strong data-i18n="payment_subscription_grace">Tolerância até:</strong> <span id="sub-grace-until">-</span></div>
+      </div>
+
+      <a id="btn-pagseguro" href="#" class="btn btn-pagseguro" data-i18n="payment_btn">Pagar com Asaas</a>
+      <button type="button" class="btn btn-close" data-action="close" data-i18n="btn_close">Close</button>
+      <div id="payment-manual-open" style="display:none; margin-top:16px; text-align:center;">
+        <button
+          id="btn-open-payment-manual"
+          type="button"
+          style="width:100%;padding:16px;font-size:17px;font-weight:700;border-radius:14px;border:none;background:linear-gradient(135deg,#2ecc71,#27ae60);color:#fff;cursor:pointer;box-shadow:0 4px 16px rgba(46,204,113,0.35);animation:pulse-pay 1.4s infinite;"
+        >💳 Toque aqui para pagar</button>
+        <p style="opacity:.7;margin-top:10px;font-size:12px;">Após pagar, feche o navegador e volte ao menu.</p>
+      </div>
+    </section>
+
+    <!-- IDIOMAS -->
+    <section id="page-languages" class="section-page">
+      <h2 class="section-title" data-i18n="lang_title">Languages</h2>
+      <p class="section-desc" data-i18n="lang_desc">Your main language and the language you want to learn.</p>
+
+      <div class="section">
+        <label for="main-lang" data-i18n="lang_main_label">Main language (yours)</label>
+        <select id="main-lang">
+          <option value="pt">🇧🇷 Português</option>
+          <option value="en">🇺🇸 English</option>
+          <option value="es">🇪🇸 Español</option>
+          <option value="fr">🇫🇷 Français</option>
+          <option value="de">🇩🇪 Deutsch</option>
+          <option value="it">🇮🇹 Italiano</option>
+          <option value="ja">🇯🇵 日本語</option>
+          <option value="zh">🇨🇳 中文</option>
+          <option value="ru">🇷🇺 Русский</option>
+          <option value="ko">🇰🇷 한국어</option>
+        </select>
+      </div>
+      <div class="section">
+        <label for="learn-lang" data-i18n="lang_learn_label">Language to learn</label>
+        <select id="learn-lang">
+          <option value="es">🇪🇸 Español</option>
+          <option value="en">🇬🇧 English</option>
+          <option value="pt">🇵🇹 Português</option>
+          <option value="fr">🇫🇷 Français</option>
+          <option value="de">🇩🇪 Deutsch</option>
+          <option value="it">🇮🇹 Italiano</option>
+          <option value="ja">🇯🇵 日本語</option>
+          <option value="zh">🇨🇳 中文</option>
+          <option value="ru">🇷🇺 Русский</option>
+          <option value="ko">🇰🇷 한국어</option>
+        </select>
+      </div>
+
+      <button type="button" id="btn-save-lang" class="btn btn-primary" data-i18n="btn_save">Save</button>
+      <button type="button" class="btn btn-close" data-action="close" data-i18n="btn_close">Close</button>
+    </section>
+
+    <!-- NÍVEL (Iniciante / Intermediário / Avançado) -->
+    <section id="page-level" class="section-page">
+      <h2 class="section-title" data-i18n="level_title">Practice level</h2>
+      <p class="section-desc" data-i18n="level_desc">Choose the level of the conversations with the bot.</p>
+      <p id="level-plan-note" class="level-lock-note" data-i18n="level_pro_only_note">Intermediário e Avançado estão disponíveis apenas no Pro.</p>
+      <div class="section">
+        <label for="level-select" data-i18n="level_label">Level</label>
+        <select id="level-select">
+          <option value="iniciante" data-i18n="level_beginner">Beginner</option>
+          <option value="intermediario" data-i18n="level_intermediate">Intermediate</option>
+          <option value="avancado" data-i18n="level_advanced">Advanced</option>
+        </select>
+      </div>
+      <button type="button" id="btn-save-level" class="btn btn-primary" data-i18n="btn_save">Save</button>
+      <button type="button" class="btn btn-close" data-action="close" data-i18n="btn_close">Close</button>
+    </section>
+
+    <!-- ROLE PLAY -->
+    <section id="page-roleplay" class="section-page">
+      <h2 class="section-title" data-i18n="roleplay_title">🎭 Role Play</h2>
+      <p class="section-desc" data-i18n="roleplay_desc">Escolha uma história. O bot inicia a conversa no chat. Exclusivo Pro.</p>
+      <p class="section-desc" style="margin-top:8px;font-weight:600;" data-i18n="roleplay_pro_badge">⭐ Exclusivo para assinantes Pro</p>
+      <div id="roleplay-list" class="roleplay-list"></div>
+    </section>
+
+    <div id="save-status" class="status-bar"></div>
+  </div>
+  <div id="payment-loading" class="loading-overlay" aria-hidden="true">
+    <div class="loading-card">
+      <span class="loading-spinner" aria-hidden="true"></span>
+      <span id="payment-loading-text">Processando pagamento...</span>
+    </div>
+  </div>
+
+  <script>
+    const tg = window.Telegram && window.Telegram.WebApp;
+    if (tg) { tg.ready(); tg.expand(); }
+
+    const params = new URLSearchParams(window.location.search);
+    const botName = params.get('bot') || '';
+    const BOT_USERNAME = botName || 'espanol_bot_br';
+
+    // Lista de Role Plays (espelha bot/roleplay.py) — id usado no deep link rp_<id>
+    const ROLEPLAY_STORIES = [
+      { audience: 'children', audienceLabel: '👧 Infantil', categoryLabel: '🧚 Contos de Fadas', id: 'lost_princess', title: 'A Princesa Perdida', subtitle: 'Ajude a princesa a encontrar o castelo!', difficulty: '🟢 Iniciante' },
+      { audience: 'children', audienceLabel: '👧 Infantil', categoryLabel: '🧚 Contos de Fadas', id: 'talking_dragon', title: 'O Dragão Amigável', subtitle: 'Faça amizade com o dragão solitário!', difficulty: '🟢 Iniciante' },
+      { audience: 'children', audienceLabel: '👧 Infantil', categoryLabel: '🦁 Aventura Animal', id: 'zoo_day', title: 'Um Dia no Zoológico', subtitle: 'Os animais falam com você hoje!', difficulty: '🟢 Iniciante' },
+      { audience: 'children', audienceLabel: '👧 Infantil', categoryLabel: '🦁 Aventura Animal', id: 'jungle_guide', title: 'Guia na Selva', subtitle: 'Explore a selva com seu guia especial!', difficulty: '🟢 Iniciante' },
+      { audience: 'children', audienceLabel: '👧 Infantil', categoryLabel: '🚀 Espaço', id: 'mars_mission', title: 'Missão em Marte', subtitle: 'Você é astronauta explorando Marte!', difficulty: '🟡 Intermediário' },
+      { audience: 'children', audienceLabel: '👧 Infantil', categoryLabel: '🚀 Espaço', id: 'friendly_alien', title: 'O Alienígena Amigável', subtitle: 'Ensine um alienígena sobre a Terra!', difficulty: '🟢 Iniciante' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🛒 Dia a Dia', id: 'market', title: 'No Mercado Local', subtitle: 'Compre frutas e pratique preços!', difficulty: '🟡 Intermediário' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🛒 Dia a Dia', id: 'restaurant', title: 'Jantar no Restaurante', subtitle: 'Faça seu pedido em espanhol!', difficulty: '🟡 Intermediário' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🛒 Dia a Dia', id: 'doctor', title: 'Consulta Médica', subtitle: 'Descreva seus sintomas em espanhol!', difficulty: '🟡 Intermediário' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '✈️ Viagens', id: 'lost_city', title: 'Perdido em Barcelona', subtitle: 'Peça direções pela cidade!', difficulty: '🟡 Intermediário' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '✈️ Viagens', id: 'hotel', title: 'Check-in no Hotel', subtitle: 'Reserve seu quarto e resolva problemas!', difficulty: '🟡 Intermediário' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '💼 Negócios', id: 'job_interview', title: 'Entrevista de Emprego', subtitle: 'Impressione na entrevista profissional!', difficulty: '🔴 Avançado' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '💼 Negócios', id: 'business_meeting', title: 'Reunião de Negócios', subtitle: 'Apresente seu projeto em espanhol!', difficulty: '🔴 Avançado' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🕵️ Mistério', id: 'missing_artifact', title: 'O Artefato Desaparecido', subtitle: 'Resolva o mistério do museu!', difficulty: '🔴 Avançado' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🕵️ Mistério', id: 'mysterious_letter', title: 'A Carta Misteriosa', subtitle: 'Decifre as pistas e resolva o enigma!', difficulty: '🔴 Avançado' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '💝 Romance', id: 'first_date', title: 'Primeiro Encontro', subtitle: 'Pratique conversas românticas!', difficulty: '🟡 Intermediário' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🏛️ Viagem no Tempo', id: 'ancient_rome', title: 'Roma Antiga', subtitle: 'Converse com um cidadão romano!', difficulty: '🔴 Avançado' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🏛️ Viagem no Tempo', id: 'renaissance_artist', title: 'Renascimento Italiano', subtitle: 'Conheça um artista da Renascença!', difficulty: '🔴 Avançado' },
+    ];
+
+    // URL fixa da API (Railway) – ignora qualquer api= na URL para evitar URLs antigas em cache
+    var DEFAULT_API_BASE = 'https://tikin-webhook-production.up.railway.app';
+    try { localStorage.removeItem('tikin_api_base'); } catch(e) {}
+    let apiBase = DEFAULT_API_BASE;
+    const asaasUrl = params.get('asaas') || '';
+
+    let userPlan = 'basic';
+    let userProSignedAt = null;
+    let userProUntil = null;
+    let userGraceUntil = null;
+
+    // Idioma da plataforma: do usuário (Telegram ou URL) ou padrão português
+    function getMainLanguage() {
+      const fromTg = tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.language_code;
+      const fromUrl = params.get('lang');
+      const raw = (fromTg || fromUrl || 'pt').toLowerCase().slice(0, 2);
+      const supported = ['en','pt','es','fr','de','it','ja','zh','ru','ko'];
+      return supported.includes(raw) ? raw : 'pt';
+    }
+    const LANG = getMainLanguage();
+
+    const i18n = {
+      en: {
+        nav_home: 'Home',
+        nav_plan: 'My plan',
+        nav_payment: 'Payment',
+        nav_languages: 'Languages',
+        nav_level: 'Level',
+        nav_roleplay: 'Role Play',
+        roleplay_title: '🎭 Role Play',
+        roleplay_desc: 'Choose a story. The bot will start the conversation in the chat. Exclusive for Pro.',
+        roleplay_pro_badge: '⭐ Exclusive for Pro subscribers',
+        level_title: 'Practice level',
+        level_desc: 'Choose the level of the conversations with the bot.',
+        level_label: 'Level',
+        level_beginner: 'Beginner',
+        level_intermediate: 'Intermediate',
+        level_advanced: 'Advanced',
+        level_pro_only_note: 'Intermediate and Advanced are available for Pro only.',
+        level_locked_msg: 'This level is available only on Pro. We set your level to Beginner.',
+        home_title: 'Welcome to Tikin Languages',
+        home_desc: 'Practice languages in Telegram with AI. Set your languages and upgrade to Pro for unlimited practice.',
+        home_desc_pro: 'Your Pro is active. Keep practicing without limits and enjoy premium resources.',
+        home_see_plan: 'See my plan',
+        home_upgrade: 'Upgrade to Pro',
+        home_pro_title: '✨ Pro plan active!',
+        home_pro_desc: 'You unlocked the full experience: unlimited practice, voice, and advanced corrections.',
+        plan_title: 'My plan',
+        plan_desc: 'Your current plan and what you get with Pro.',
+        plan_basic: 'Basic',
+        plan_current: 'Current',
+        plan_basic_1: 'Limited practice per day',
+        plan_basic_2: 'Text chat with the bot',
+        plan_basic_3: 'Basic corrections',
+        plan_pro: 'Pro',
+        plan_recommended: 'Recommended',
+        plan_pro_1: 'Unlimited practice',
+        plan_pro_2: 'Voice messages (speak & listen)',
+        plan_pro_3: 'Advanced corrections & tips',
+        plan_pro_4: 'Priority support',
+        plan_pro_celebration_title: '🎉 You are Pro! Amazing choice!',
+        plan_pro_celebration_desc: 'Your premium access is active. Enjoy everything without limits.',
+        plan_pro_celebration_1: 'Unlimited conversations to improve faster',
+        plan_pro_celebration_2: 'Voice features unlocked for pronunciation practice',
+        plan_pro_celebration_3: 'Advanced corrections and priority support',
+        plan_cta: 'Unlock your full potential — upgrade now.',
+        plan_upgrade_btn: 'Upgrade to Pro',
+        payment_title: 'Upgrade to Pro',
+        payment_desc: 'Get unlimited practice and voice features. Cancel anytime.',
+        payment_period: 'per month · cancel anytime',
+        payment_benefit_1: '✓ Unlimited conversations',
+        payment_benefit_2: '✓ Voice in & out',
+        payment_benefit_3: '✓ All languages',
+        payment_benefit_4: '✓ No ads, no limits',
+        payment_btn: 'Pay with Asaas',
+        payment_subscription_title: 'Your Pro subscription is active',
+        payment_subscription_signed: 'Signed on:',
+        payment_subscription_until: 'Active until:',
+        payment_subscription_grace: 'Grace period until:',
+        payment_check_btn: "I've already paid",
+        lang_title: 'Languages',
+        lang_desc: 'Your main language and the language you want to learn.',
+        lang_main_label: 'Main language (yours)',
+        lang_learn_label: 'Language to learn',
+        lang_open_telegram: 'Open in Telegram',
+        btn_save: 'Save',
+        btn_close: 'Close',
+        save_ok: 'Saved!',
+        save_error: 'Could not save. Try again.',
+        save_no_api: 'Could not connect to the API. Please try again.'
+      },
+      pt: {
+        nav_home: 'Início',
+        nav_plan: 'Meu plano',
+        nav_payment: 'Pagamento',
+        nav_languages: 'Idiomas',
+        nav_level: 'Nível',
+        nav_roleplay: 'Role Play',
+        roleplay_title: '🎭 Role Play',
+        roleplay_desc: 'Escolha uma história. O bot inicia a conversa no chat. Exclusivo Pro.',
+        roleplay_pro_badge: '⭐ Exclusivo para assinantes Pro',
+        level_title: 'Nível de prática',
+        level_desc: 'Escolha o nível das conversas com o bot.',
+        level_label: 'Nível',
+        level_beginner: 'Iniciante',
+        level_intermediate: 'Intermediário',
+        level_advanced: 'Avançado',
+        level_pro_only_note: 'Intermediário e Avançado estão disponíveis apenas no Pro.',
+        level_locked_msg: 'Esse nível está disponível apenas no Pro. Ajustamos para Iniciante.',
+        home_title: 'Bem-vindo ao Tikin Languages',
+        home_desc: 'Pratique idiomas no Telegram com IA. Configure seus idiomas e assine o Pro para prática ilimitada.',
+        home_desc_pro: 'Seu Pro está ativo. Continue praticando sem limites e aproveite os recursos premium.',
+        home_see_plan: 'Ver meu plano',
+        home_upgrade: 'Assinar Pro',
+        home_pro_title: '✨ Plano Pro ativo!',
+        home_pro_desc: 'Você desbloqueou a experiência completa: prática ilimitada, voz e correções avançadas.',
+        plan_title: 'Meu plano',
+        plan_desc: 'Seu plano atual e o que você ganha com o Pro.',
+        plan_basic: 'Basic',
+        plan_current: 'Atual',
+        plan_basic_1: 'Prática limitada por dia',
+        plan_basic_2: 'Chat por texto com o bot',
+        plan_basic_3: 'Correções básicas',
+        plan_pro: 'Pro',
+        plan_recommended: 'Recomendado',
+        plan_pro_1: 'Prática ilimitada',
+        plan_pro_2: 'Mensagens de voz (falar e ouvir)',
+        plan_pro_3: 'Correções e dicas avançadas',
+        plan_pro_4: 'Suporte prioritário',
+        plan_pro_celebration_title: '🎉 Você é Pro! Que conquista incrível!',
+        plan_pro_celebration_desc: 'Seu acesso premium está ativo. Aproveite tudo sem limites.',
+        plan_pro_celebration_1: 'Conversas ilimitadas para evoluir mais rápido',
+        plan_pro_celebration_2: 'Recursos de voz liberados para praticar pronúncia',
+        plan_pro_celebration_3: 'Correções avançadas e suporte prioritário',
+        plan_cta: 'Libere todo o seu potencial — assine agora.',
+        plan_upgrade_btn: 'Assinar Pro',
+        payment_title: 'Assinar Pro',
+        payment_desc: 'Prática ilimitada e recursos de voz. Cancele quando quiser.',
+        payment_period: 'por mês · cancele quando quiser',
+        payment_benefit_1: '✓ Conversas ilimitadas',
+        payment_benefit_2: '✓ Voz na entrada e saída',
+        payment_benefit_3: '✓ Todos os idiomas',
+        payment_benefit_4: '✓ Sem anúncios, sem limites',
+        payment_btn: 'Pagar com Asaas',
+        payment_subscription_title: 'Seu plano Pro está ativo',
+        payment_subscription_signed: 'Assinado em:',
+        payment_subscription_until: 'Ativo até:',
+        payment_subscription_grace: 'Tolerância até:',
+        payment_check_btn: 'Já paguei',
+        lang_title: 'Idiomas',
+        lang_desc: 'Seu idioma principal e o idioma que deseja aprender.',
+        lang_main_label: 'Idioma principal (o seu)',
+        lang_learn_label: 'Idioma a aprender',
+        lang_open_telegram: 'Abrir no Telegram',
+        btn_save: 'Salvar',
+        btn_close: 'Fechar',
+        save_ok: 'Salvo!',
+        save_error: 'Não foi possível salvar. Tente novamente.',
+        save_no_api: 'Não foi possível conectar à API. Tente novamente.'
+      },
+      es: {
+        nav_home: 'Inicio',
+        nav_plan: 'Mi plan',
+        nav_payment: 'Pago',
+        nav_languages: 'Idiomas',
+        nav_level: 'Nivel',
+        nav_roleplay: 'Role Play',
+        roleplay_title: '🎭 Role Play',
+        roleplay_desc: 'Elige una historia. El bot iniciará la conversación en el chat. Exclusivo Pro.',
+        roleplay_pro_badge: '⭐ Exclusivo para suscriptores Pro',
+        level_title: 'Nivel de práctica',
+        level_desc: 'Elige el nivel de las conversaciones con el bot.',
+        level_label: 'Nivel',
+        level_beginner: 'Principiante',
+        level_intermediate: 'Intermedio',
+        level_advanced: 'Avanzado',
+        level_pro_only_note: 'Intermedio y Avanzado están disponibles solo en Pro.',
+        level_locked_msg: 'Ese nivel está disponible solo en Pro. Ajustamos tu nivel a Principiante.',
+        home_title: 'Bienvenido a Tikin Languages',
+        home_desc: 'Practica idiomas en Telegram con IA. Configura tus idiomas y mejora a Pro para práctica ilimitada.',
+        home_desc_pro: 'Tu Pro está activo. Sigue practicando sin límites y aprovecha los recursos premium.',
+        home_see_plan: 'Ver mi plan',
+        home_upgrade: 'Pasar a Pro',
+        home_pro_title: '✨ ¡Plan Pro activo!',
+        home_pro_desc: 'Desbloqueaste la experiencia completa: práctica ilimitada, voz y correcciones avanzadas.',
+        plan_title: 'Mi plan',
+        plan_desc: 'Tu plan actual y lo que obtienes con Pro.',
+        plan_basic: 'Basic',
+        plan_current: 'Actual',
+        plan_basic_1: 'Práctica limitada por día',
+        plan_basic_2: 'Chat de texto con el bot',
+        plan_basic_3: 'Correcciones básicas',
+        plan_pro: 'Pro',
+        plan_recommended: 'Recomendado',
+        plan_pro_1: 'Práctica ilimitada',
+        plan_pro_2: 'Mensajes de voz (hablar y escuchar)',
+        plan_pro_3: 'Correcciones y consejos avanzados',
+        plan_pro_4: 'Soporte prioritario',
+        plan_pro_celebration_title: '🎉 ¡Ya eres Pro! ¡Qué gran logro!',
+        plan_pro_celebration_desc: 'Tu acceso premium está activo. Disfrútalo todo sin límites.',
+        plan_pro_celebration_1: 'Conversaciones ilimitadas para mejorar más rápido',
+        plan_pro_celebration_2: 'Funciones de voz desbloqueadas para practicar pronunciación',
+        plan_pro_celebration_3: 'Correcciones avanzadas y soporte prioritario',
+        plan_cta: 'Desbloquea todo tu potencial — mejora ahora.',
+        plan_upgrade_btn: 'Pasar a Pro',
+        payment_title: 'Pasar a Pro',
+        payment_desc: 'Práctica ilimitada y funciones de voz. Cancela cuando quieras.',
+        payment_period: 'al mes · cancela cuando quieras',
+        payment_benefit_1: '✓ Conversaciones ilimitadas',
+        payment_benefit_2: '✓ Voz de entrada y salida',
+        payment_benefit_3: '✓ Todos los idiomas',
+        payment_benefit_4: '✓ Sin anuncios, sin límites',
+        payment_btn: 'Pagar con Asaas',
+        payment_subscription_title: 'Tu plan Pro está activo',
+        payment_subscription_signed: 'Suscrito en:',
+        payment_subscription_until: 'Activo hasta:',
+        payment_subscription_grace: 'Periodo de gracia hasta:',
+        payment_check_btn: 'Ya pagué',
+        lang_title: 'Idiomas',
+        lang_desc: 'Tu idioma principal y el idioma que quieres aprender.',
+        lang_main_label: 'Idioma principal (el tuyo)',
+        lang_learn_label: 'Idioma a aprender',
+        lang_open_telegram: 'Abrir en Telegram',
+        btn_save: 'Guardar',
+        btn_close: 'Cerrar',
+        save_ok: '¡Guardado!',
+        save_error: 'No se pudo guardar. Intenta de nuevo.',
+        save_no_api: 'No se pudo conectar a la API. Intenta de nuevo.'
+      },
+      fr: { nav_home: 'Accueil', nav_plan: 'Mon forfait', nav_payment: 'Paiement', nav_languages: 'Langues', home_title: 'Bienvenue sur Tikin Languages', home_desc: 'Pratiquez les langues sur Telegram avec l\'IA.', home_see_plan: 'Voir mon forfait', home_upgrade: 'Passer à Pro', plan_title: 'Mon forfait', plan_desc: 'Votre forfait actuel et Pro.', plan_basic: 'Basic', plan_current: 'Actuel', plan_basic_1: 'Pratique limitée par jour', plan_basic_2: 'Chat texte', plan_basic_3: 'Corrections de base', plan_pro: 'Pro', plan_recommended: 'Recommandé', plan_pro_1: 'Pratique illimitée', plan_pro_2: 'Messages vocaux', plan_pro_3: 'Corrections avancées', plan_pro_4: 'Support prioritaire', plan_cta: 'Passez à Pro.', plan_upgrade_btn: 'Passer à Pro', payment_title: 'Passer à Pro', payment_desc: 'Pratique illimitée et voix.', payment_period: 'par mois', payment_benefit_1: '✓ Conversations illimitées', payment_benefit_2: '✓ Voix', payment_benefit_3: '✓ Toutes les langues', payment_benefit_4: '✓ Sans limites', payment_btn: 'Payer avec Asaas', lang_title: 'Langues', lang_desc: 'Votre langue et celle à apprendre.', lang_main_label: 'Langue principale', lang_learn_label: 'Langue à apprendre', lang_open_telegram: 'Ouvrir dans Telegram', btn_save: 'Enregistrer', btn_close: 'Fermer' },
+      de: { nav_home: 'Start', nav_plan: 'Mein Plan', nav_payment: 'Zahlung', nav_languages: 'Sprachen', home_title: 'Willkommen bei Tikin Languages', home_desc: 'Sprachen mit KI in Telegram üben.', home_see_plan: 'Meinen Plan ansehen', home_upgrade: 'Auf Pro upgraden', plan_title: 'Mein Plan', plan_desc: 'Ihr aktueller Plan und Pro.', plan_basic: 'Basic', plan_current: 'Aktuell', plan_basic_1: 'Begrenzte Übung pro Tag', plan_basic_2: 'Text-Chat', plan_basic_3: 'Grundkorrekturen', plan_pro: 'Pro', plan_recommended: 'Empfohlen', plan_pro_1: 'Unbegrenzte Übung', plan_pro_2: 'Sprachnachrichten', plan_pro_3: 'Erweiterte Korrekturen', plan_pro_4: 'Prioritäts-Support', plan_cta: 'Upgrade auf Pro.', plan_upgrade_btn: 'Auf Pro upgraden', payment_title: 'Auf Pro upgraden', payment_desc: 'Unbegrenzte Übung und Sprache.', payment_period: 'pro Monat', payment_benefit_1: '✓ Unbegrenzte Gespräche', payment_benefit_2: '✓ Sprache', payment_benefit_3: '✓ Alle Sprachen', payment_benefit_4: '✓ Keine Limits', payment_btn: 'Mit Asaas bezahlen', lang_title: 'Sprachen', lang_desc: 'Ihre Sprache und Lernsprache.', lang_main_label: 'Hauptsprache', lang_learn_label: 'Zu lernende Sprache', lang_open_telegram: 'In Telegram öffnen', btn_save: 'Speichern', btn_close: 'Schließen' },
+      it: { nav_home: 'Home', nav_plan: 'Il mio piano', nav_payment: 'Pagamento', nav_languages: 'Lingue', home_title: 'Benvenuto in Tikin Languages', home_desc: 'Pratica le lingue su Telegram con IA.', home_see_plan: 'Vedi il mio piano', home_upgrade: 'Passa a Pro', plan_title: 'Il mio piano', plan_desc: 'Il tuo piano attuale e Pro.', plan_basic: 'Basic', plan_current: 'Attuale', plan_basic_1: 'Pratica limitata al giorno', plan_basic_2: 'Chat di testo', plan_basic_3: 'Correzioni base', plan_pro: 'Pro', plan_recommended: 'Consigliato', plan_pro_1: 'Pratica illimitata', plan_pro_2: 'Messaggi vocali', plan_pro_3: 'Correzioni avanzate', plan_pro_4: 'Supporto prioritario', plan_cta: 'Passa a Pro.', plan_upgrade_btn: 'Passa a Pro', payment_title: 'Passa a Pro', payment_desc: 'Pratica illimitata e voce.', payment_period: 'al mese', payment_benefit_1: '✓ Conversazioni illimitate', payment_benefit_2: '✓ Voce', payment_benefit_3: '✓ Tutte le lingue', payment_benefit_4: '✓ Senza limiti', payment_btn: 'Paga con Asaas', lang_title: 'Lingue', lang_desc: 'La tua lingua e quella da imparare.', lang_main_label: 'Lingua principale', lang_learn_label: 'Lingua da imparare', lang_open_telegram: 'Apri in Telegram', btn_save: 'Salva', btn_close: 'Chiudi' },
+      ja: { nav_home: 'ホーム', nav_plan: 'マイプラン', nav_payment: '支払い', nav_languages: '言語', home_title: 'Tikin Languagesへようこそ', home_desc: 'TelegramでAIと言語練習。', home_see_plan: 'プランを見る', home_upgrade: 'Proへ', plan_title: 'マイプラン', plan_desc: '現在のプランとProの内容。', plan_basic: 'Basic', plan_current: '現在', plan_basic_1: '1日限定練習', plan_basic_2: 'テキストチャット', plan_basic_3: '基本添削', plan_pro: 'Pro', plan_recommended: 'おすすめ', plan_pro_1: '無制限練習', plan_pro_2: '音声メッセージ', plan_pro_3: '高度な添削', plan_pro_4: '優先サポート', plan_cta: 'Proへアップグレード。', plan_upgrade_btn: 'Proへ', payment_title: 'Proへ', payment_desc: '無制限練習と音声。', payment_period: '月額', payment_benefit_1: '✓ 無制限会話', payment_benefit_2: '✓ 音声', payment_benefit_3: '✓ 全言語', payment_benefit_4: '✓ 制限なし', payment_btn: 'Asaasで支払う', lang_title: '言語', lang_desc: '母国語と学習言語。', lang_main_label: '母国語', lang_learn_label: '学習言語', lang_open_telegram: 'Telegramで開く', btn_save: '保存', btn_close: '閉じる' },
+      zh: { nav_home: '首页', nav_plan: '我的套餐', nav_payment: '支付', nav_languages: '语言', home_title: '欢迎使用 Tikin Languages', home_desc: '在Telegram中用AI练习语言。', home_see_plan: '查看套餐', home_upgrade: '升级Pro', plan_title: '我的套餐', plan_desc: '当前套餐与Pro。', plan_basic: 'Basic', plan_current: '当前', plan_basic_1: '每日有限练习', plan_basic_2: '文字聊天', plan_basic_3: '基础纠错', plan_pro: 'Pro', plan_recommended: '推荐', plan_pro_1: '无限练习', plan_pro_2: '语音消息', plan_pro_3: '高级纠错', plan_pro_4: '优先支持', plan_cta: '升级Pro。', plan_upgrade_btn: '升级Pro', payment_title: '升级Pro', payment_desc: '无限练习与语音。', payment_period: '每月', payment_benefit_1: '✓ 无限对话', payment_benefit_2: '✓ 语音', payment_benefit_3: '✓ 所有语言', payment_benefit_4: '✓ 无限制', payment_btn: '用Asaas支付', lang_title: '语言', lang_desc: '您的语言与要学习的语言。', lang_main_label: '主要语言', lang_learn_label: '要学习的语言', lang_open_telegram: '在Telegram中打开', btn_save: '保存', btn_close: '关闭' },
+      ru: { nav_home: 'Главная', nav_plan: 'Мой план', nav_payment: 'Оплата', nav_languages: 'Языки', home_title: 'Добро пожаловать в Tikin Languages', home_desc: 'Практика языков в Telegram с ИИ.', home_see_plan: 'Мой план', home_upgrade: 'Перейти на Pro', plan_title: 'Мой план', plan_desc: 'Текущий план и Pro.', plan_basic: 'Basic', plan_current: 'Текущий', plan_basic_1: 'Ограниченная практика', plan_basic_2: 'Текстовый чат', plan_basic_3: 'Базовые правки', plan_pro: 'Pro', plan_recommended: 'Рекомендуем', plan_pro_1: 'Безлимитная практика', plan_pro_2: 'Голосовые сообщения', plan_pro_3: 'Расширенные правки', plan_pro_4: 'Приоритетная поддержка', plan_cta: 'Перейти на Pro.', plan_upgrade_btn: 'Перейти на Pro', payment_title: 'Перейти на Pro', payment_desc: 'Безлимит и голос.', payment_period: 'в месяц', payment_benefit_1: '✓ Безлимитные диалоги', payment_benefit_2: '✓ Голос', payment_benefit_3: '✓ Все языки', payment_benefit_4: '✓ Без ограничений', payment_btn: 'Оплатить через Asaas', lang_title: 'Языки', lang_desc: 'Ваш язык и язык для изучения.', lang_main_label: 'Основной язык', lang_learn_label: 'Изучаемый язык', lang_open_telegram: 'Открыть в Telegram', btn_save: 'Сохранить', btn_close: 'Закрыть' },
+      ko: { nav_home: '홈', nav_plan: '내 요금제', nav_payment: '결제', nav_languages: '언어', home_title: 'Tikin Languages에 오신 것을 환영합니다', home_desc: 'Telegram에서 AI와 함께 언어 연습.', home_see_plan: '내 요금제 보기', home_upgrade: 'Pro 업그레이드', plan_title: '내 요금제', plan_desc: '현재 요금제와 Pro.', plan_basic: 'Basic', plan_current: '현재', plan_basic_1: '일일 제한 연습', plan_basic_2: '텍스트 채팅', plan_basic_3: '기본 교정', plan_pro: 'Pro', plan_recommended: '추천', plan_pro_1: '무제한 연습', plan_pro_2: '음성 메시지', plan_pro_3: '고급 교정', plan_pro_4: '우선 지원', plan_cta: 'Pro로 업그레이드.', plan_upgrade_btn: 'Pro 업그레이드', payment_title: 'Pro 업그레이드', payment_desc: '무제한 연습 및 음성.', payment_period: '월별', payment_benefit_1: '✓ 무제한 대화', payment_benefit_2: '✓ 음성', payment_benefit_3: '✓ 모든 언어', payment_benefit_4: '✓ 제한 없음', payment_btn: 'Asaas로 결제', lang_title: '언어', lang_desc: '귀하의 언어와 학습 언어.', lang_main_label: '주 사용 언어', lang_learn_label: '배울 언어', lang_open_telegram: 'Telegram에서 열기', btn_save: '저장', btn_close: '닫기' }
+    };
+
+    const t = (key) => (i18n[LANG] && i18n[LANG][key]) || i18n.pt[key] || i18n.en[key] || key;
+    document.documentElement.lang = LANG === 'zh' ? 'zh-CN' : LANG;
+
+    function applyTranslations() {
+      document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.getAttribute('data-i18n')); });
+    }
+    applyTranslations();
+    const loadingTextEl = document.getElementById('payment-loading-text');
+    if (loadingTextEl) {
+      loadingTextEl.textContent = LANG === 'es'
+        ? 'Procesando pago...'
+        : (LANG === 'en' ? 'Processing payment...' : 'Processando pagamento...');
+    }
+
+    const paymentBtn = document.getElementById('btn-pagseguro');
+    const paymentLoadingEl = document.getElementById('payment-loading');
+    const paymentBtnOriginalText = paymentBtn ? paymentBtn.textContent : '';
+    let paymentInFlight = false;
+    let paymentConfirmTimer = null;
+    let paymentConfirmAttempts = 0;
+    let awaitingPaymentConfirmation = false;
+    let silentPollTimer = null;
+
+    function setPaymentLoading(isLoading) {
+      paymentInFlight = isLoading;
+      if (paymentLoadingEl) paymentLoadingEl.classList.toggle('active', isLoading);
+      if (paymentBtn) {
+        paymentBtn.style.pointerEvents = isLoading ? 'none' : 'auto';
+        paymentBtn.style.opacity = isLoading ? '0.7' : '1';
+        paymentBtn.textContent = isLoading
+          ? (LANG === 'es' ? 'Procesando...' : (LANG === 'en' ? 'Processing...' : 'Processando...'))
+          : paymentBtnOriginalText;
+      }
+    }
+
+    function stopPaymentAutoConfirm() {
+      awaitingPaymentConfirmation = false;
+      paymentConfirmAttempts = 0;
+      if (paymentConfirmTimer) { clearInterval(paymentConfirmTimer); paymentConfirmTimer = null; }
+      stopSilentPoll();
+    }
+
+    function stopSilentPoll() {
+      if (silentPollTimer) { clearInterval(silentPollTimer); silentPollTimer = null; }
+    }
+
+    // Polling silencioso: roda quando há checkout pendente, sem precisar clicar em nada
+    function startSilentPoll() {
+      if (silentPollTimer) return; // já rodando
+      if (!hasPendingCheckout()) return;
+      let attempts = 0;
+      silentPollTimer = setInterval(async () => {
+        attempts++;
+        if (!hasPendingCheckout() || (userPlan || '').toLowerCase() === 'pro') {
+          stopSilentPoll();
+          return;
+        }
+        await silentCheckPayment();
+        if (attempts >= 36) stopSilentPoll(); // para após ~3 min (36 * 5s)
+      }, 5000);
+    }
+
+    // Guarda/limpa checkout pendente no localStorage
+    function setPendingCheckout(checkoutId) {
+      try { localStorage.setItem('tikin_pending_checkout', checkoutId || '1'); } catch(e) {}
+    }
+    function clearPendingCheckout() {
+      try { localStorage.removeItem('tikin_pending_checkout'); } catch(e) {}
+    }
+    function hasPendingCheckout() {
+      try { return !!localStorage.getItem('tikin_pending_checkout'); } catch(e) { return false; }
+    }
+
+    // Checa pagamento silenciosamente — só roda se houver checkout pendente registrado
+    async function silentCheckPayment() {
+      if (!hasPendingCheckout()) return;
+      if (!apiBase || !tg || !tg.initData) return;
+      if ((userPlan || '').toLowerCase() === 'pro') { clearPendingCheckout(); return; }
+      try {
+        const checkoutId = localStorage.getItem('tikin_pending_checkout') || '';
+        const r = await fetch(apiBase + '/webapp/asaas/confirm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ initData: tg.initData, checkoutId })
+        });
+        const data = await r.json().catch(() => ({}));
+        if (r.ok && data.paid) {
+          clearPendingCheckout();
+          stopPaymentAutoConfirm();
+          userPlan = 'pro';
+          userProSignedAt = userProSignedAt || new Date().toISOString();
+          userProUntil = data.pro_until || userProUntil;
+          userGraceUntil = data.grace_until || userGraceUntil;
+          updatePlanUI();
+          updatePaymentSubscriptionUI();
+          const manualWrapEl = document.getElementById('payment-manual-open');
+          if (manualWrapEl) manualWrapEl.style.display = 'none';
+          _onProActivated();
+        }
+      } catch (e) {}
+    }
+
+    // ── Celebração Pro ────────────────────────────────────────────────────────
+    function _playCelebrationSound() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const notes = [523, 659, 784, 1047, 784, 1047, 1319];
+        const times = [0, 0.12, 0.24, 0.36, 0.52, 0.62, 0.74];
+        notes.forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.type = 'sine'; osc.frequency.value = freq;
+          const t = ctx.currentTime + times[i];
+          gain.gain.setValueAtTime(0, t);
+          gain.gain.linearRampToValueAtTime(0.18, t + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+          osc.start(t); osc.stop(t + 0.22);
+        });
+      } catch(e) {}
+    }
+
+    function _launchFireworks(callback) {
+      const canvas = document.createElement('canvas');
+      canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;pointer-events:none;';
+      document.body.appendChild(canvas);
+      const W = canvas.width  = window.innerWidth;
+      const H = canvas.height = window.innerHeight;
+      const ctx = canvas.getContext('2d');
+      const COLORS = ['#FFD700','#FF6B6B','#4ECDC4','#45B7D1','#96CEB4','#FFEAA7','#DDA0DD','#98FB98','#FF69B4','#87CEEB'];
+      const ROCKETS  = ['🚀','🚀','🎉','⭐','✨'];
+      const particles = [];
+
+      // Confetes
+      for (let i = 0; i < 140; i++) {
+        particles.push({
+          x: Math.random() * W, y: Math.random() * H * 0.5 - H * 0.2,
+          vx: (Math.random() - 0.5) * 5, vy: Math.random() * 3 + 1,
+          w: Math.random() * 10 + 5, h: Math.random() * 6 + 3,
+          color: COLORS[Math.floor(Math.random() * COLORS.length)],
+          rot: Math.random() * 360, rotV: (Math.random() - 0.5) * 8,
+          type: 'rect'
+        });
+      }
+
+      // Foguetes (emojis)
+      const rockets = ROCKETS.map((emoji, i) => ({
+        emoji, x: W * (0.15 + i * 0.18), y: H + 30,
+        vy: -(Math.random() * 6 + 10), vx: (Math.random() - 0.5) * 2,
+        size: Math.random() * 14 + 22, alpha: 1
+      }));
+
+      let frame = 0;
+      const maxFrames = 165; // ~2.75s a 60fps
+
+      function draw() {
+        ctx.clearRect(0, 0, W, H);
+
+        // Confetes
+        particles.forEach(p => {
+          p.x += p.vx; p.y += p.vy; p.vy += 0.06; p.rot += p.rotV;
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rot * Math.PI / 180);
+          ctx.globalAlpha = frame < maxFrames - 40 ? 1 : Math.max(0, 1 - (frame - (maxFrames - 40)) / 40);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+          ctx.restore();
+        });
+
+        // Foguetes
+        rockets.forEach(r => {
+          r.x += r.vx; r.y += r.vy; r.vy *= 0.98;
+          ctx.save();
+          ctx.globalAlpha = r.y < 0 ? Math.max(0, 1 + r.y / 80) : 1;
+          ctx.font = r.size + 'px serif';
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText(r.emoji, r.x, r.y);
+          ctx.restore();
+        });
+
+        frame++;
+        if (frame < maxFrames) {
+          requestAnimationFrame(draw);
+        } else {
+          canvas.remove();
+          if (callback) callback();
+        }
+      }
+      requestAnimationFrame(draw);
+    }
+
+    // Chamado quando Pro é confirmado em qualquer fluxo
+    function _onProActivated() {
+      _playCelebrationSound();
+      _launchFireworks(() => {
+        const msg = (LANG === 'es'
+          ? '🎉 ¡Pago confirmado! Tu plan Pro ya está activo. Vuelve al chat para empezar.'
+          : (LANG === 'en'
+            ? '🎉 Payment confirmed! Your Pro plan is now active. Return to chat to start.'
+            : '🎉 Pagamento confirmado! Seu plano Pro está ativo. Volte ao chat para começar.'));
+        if (tg && tg.showPopup) {
+          tg.showPopup({ title: '🚀 Pro ativo!', message: msg }, () => {
+            if (tg && tg.close) tg.close();
+          });
+        } else if (tg && tg.close) {
+          tg.close();
+        }
+      });
+    }
+
+    async function tryAutoConfirmPayment(showPendingMessage) {
+      if (!awaitingPaymentConfirmation || !apiBase || !tg || !tg.initData) return false;
+      try {
+        const checkoutId = localStorage.getItem('tikin_pending_checkout') || '';
+        const r = await fetch(apiBase + '/webapp/asaas/confirm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ initData: tg.initData, checkoutId })
+        });
+        const data = await r.json().catch(() => ({}));
+        if (r.ok && data.paid) {
+          clearPendingCheckout();
+          stopPaymentAutoConfirm();
+          userPlan = 'pro';
+          userProSignedAt = userProSignedAt || new Date().toISOString();
+          userProUntil = data.pro_until || userProUntil;
+          userGraceUntil = data.grace_until || userGraceUntil;
+          updatePlanUI();
+          updatePaymentSubscriptionUI();
+          const manualWrapEl = document.getElementById('payment-manual-open');
+          if (manualWrapEl) manualWrapEl.style.display = 'none';
+          _onProActivated();
+          return true;
+        }
+        if (showPendingMessage && tg && tg.showPopup) {
+          tg.showPopup({
+            title: '',
+            message: (LANG === 'es'
+              ? 'Pago aún en procesamiento. Vuelve al menú en unos segundos.'
+              : (LANG === 'en'
+                ? 'Payment still processing. Return to the menu in a few seconds.'
+                : 'Pagamento ainda processando. Volte ao menu em alguns segundos.')),
+          });
+        }
+      } catch (e) {}
+      return false;
+    }
+
+    function startPaymentAutoConfirm() {
+      awaitingPaymentConfirmation = true;
+      paymentConfirmAttempts = 0;
+      if (paymentConfirmTimer) clearInterval(paymentConfirmTimer);
+      paymentConfirmTimer = setInterval(async () => {
+        paymentConfirmAttempts += 1;
+        await tryAutoConfirmPayment(false);
+        if (paymentConfirmAttempts >= 45) {
+          // Para após ~3 minutos (45 * 4s)
+          stopPaymentAutoConfirm();
+        }
+      }, 4000);
+    }
+
+    function showPage(pageId) {
+      document.querySelectorAll('.section-page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      const page = document.getElementById('page-' + pageId);
+      const nav = document.querySelector('.nav-item[data-page="' + pageId + '"]');
+      if (page) page.classList.add('active');
+      if (nav) nav.classList.add('active');
+      if (pageId === 'roleplay') renderRoleplayList();
+    }
+
+    function renderRoleplayList() {
+      const container = document.getElementById('roleplay-list');
+      if (!container) return;
+      // Username do bot: prioridade 1 = API (config), 2 = URL (?bot=), 3 = fallback
+      const effectiveBotUsername = (window.__botUsernameForRoleplay || BOT_USERNAME || '').trim() || 'espanol_bot_br';
+      const groups = {};
+      ROLEPLAY_STORIES.forEach(s => {
+        const key = s.audience + '|' + s.categoryLabel;
+        if (!groups[key]) groups[key] = { audienceLabel: s.audienceLabel, categoryLabel: s.categoryLabel, stories: [] };
+        groups[key].stories.push(s);
+      });
+      let html = '';
+      Object.values(groups).forEach(g => {
+        html += '<div class="roleplay-group">';
+        html += '<div class="roleplay-group-title">' + g.audienceLabel + ' · ' + g.categoryLabel + '</div>';
+        g.stories.forEach(s => {
+          const url = 'https://t.me/' + effectiveBotUsername + '?start=rp_' + s.id;
+          html += '<a href="' + url + '" class="roleplay-card" data-rp-id="' + s.id + '" target="_blank" rel="noopener">';
+          html += '<span class="title">' + s.title + '</span> <span class="meta">' + s.difficulty + '</span>';
+          html += '<div class="meta">' + s.subtitle + '</div>';
+          html += '</a>';
+        });
+        html += '</div>';
+      });
+      container.innerHTML = html;
+      container.querySelectorAll('.roleplay-card').forEach(a => {
+        a.addEventListener('click', async function(e) {
+          e.preventDefault();
+          const storyId = this.getAttribute('data-rp-id');
+          if (!storyId || !apiBase || !tg || !tg.initData) return;
+          this.style.opacity = '0.6';
+          try {
+            await fetch(apiBase + '/webapp/roleplay/start', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ storyId, initData: tg.initData }),
+            });
+          } catch (err) {}
+          // Fecha o menu — o bot já enviou a mensagem com o botão no chat
+          if (tg && tg.close) tg.close();
+        });
+      });
+    }
+
+    function formatDateToUser(isoValue) {
+      if (!isoValue) return '-';
+      const d = new Date(isoValue);
+      if (Number.isNaN(d.getTime())) return '-';
+      const locale = LANG === 'pt' ? 'pt-BR' : (LANG === 'es' ? 'es-ES' : 'en-US');
+      return d.toLocaleDateString(locale);
+    }
+
+    function updatePaymentSubscriptionUI() {
+      const isPro = (userPlan || '').toLowerCase() === 'pro';
+      const wrap = document.getElementById('subscription-status');
+      if (!wrap) return;
+      wrap.classList.toggle('active', isPro);
+      if (!isPro) return;
+
+      const signedEl = document.getElementById('sub-signed-at');
+      const untilEl = document.getElementById('sub-pro-until');
+      const graceEl = document.getElementById('sub-grace-until');
+      if (signedEl) signedEl.textContent = formatDateToUser(userProSignedAt);
+      if (untilEl) untilEl.textContent = formatDateToUser(userProUntil);
+      if (graceEl) graceEl.textContent = formatDateToUser(userGraceUntil);
+    }
+
+    function updateLevelAccessUI() {
+      const isPro = (userPlan || '').toLowerCase() === 'pro';
+      const levelEl = document.getElementById('level-select');
+      const noteEl = document.getElementById('level-plan-note');
+      if (!levelEl) return;
+
+      const intermediate = levelEl.querySelector('option[value="intermediario"]');
+      const advanced = levelEl.querySelector('option[value="avancado"]');
+      if (intermediate) intermediate.disabled = !isPro;
+      if (advanced) advanced.disabled = !isPro;
+      if (noteEl) noteEl.classList.toggle('active', !isPro);
+
+      if (!isPro && levelEl.value !== 'iniciante') {
+        levelEl.value = 'iniciante';
+      }
+    }
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', function(e) {
+        e.preventDefault();
+        showPage(this.getAttribute('data-page'));
+      });
+    });
+    document.querySelectorAll('[data-goto]').forEach(el => {
+      el.addEventListener('click', function(e) {
+        e.preventDefault();
+        showPage(this.getAttribute('data-goto'));
+      });
+    });
+    document.querySelectorAll('[data-action="close"]').forEach(el => {
+      el.addEventListener('click', () => { if (tg && tg.close) tg.close(); });
+    });
+    document.getElementById('btn-close').onclick = () => { if (tg && tg.close) tg.close(); };
+
+    // Valores estáticos para teste (pré-preenchem os prompts; apague em produção se quiser)
+    function askBuyerData() {
+      const namePrompt = LANG === 'es'
+        ? 'Ingresa tu nombre completo:'
+        : (LANG === 'en' ? 'Enter your full name:' : 'Digite seu nome completo:');
+      const emailPrompt = LANG === 'es'
+        ? 'Ingresa tu e-mail de compra:'
+        : (LANG === 'en' ? 'Enter your buyer e-mail:' : 'Digite seu e-mail de compra:');
+      const cpfPrompt = LANG === 'es'
+        ? 'Ingresa tu CPF/CNPJ (solo números):'
+        : (LANG === 'en' ? 'Enter your CPF/CNPJ (numbers only):' : 'Digite seu CPF/CNPJ (somente números):');
+      const phonePrompt = LANG === 'es'
+        ? 'Ingresa tu teléfono (con DDD, solo números):'
+        : (LANG === 'en' ? 'Enter your phone (area code + numbers):' : 'Digite seu telefone (com DDD, somente números):');
+      const nameInvalid = LANG === 'es'
+        ? 'Nombre completo inválido.'
+        : (LANG === 'en' ? 'Invalid full name.' : 'Nome completo inválido.');
+      const emailInvalid = LANG === 'es'
+        ? 'E-mail inválido.'
+        : (LANG === 'en' ? 'Invalid e-mail.' : 'E-mail inválido.');
+      const cpfInvalid = LANG === 'es'
+        ? 'CPF/CNPJ inválido.'
+        : (LANG === 'en' ? 'Invalid CPF/CNPJ.' : 'CPF/CNPJ inválido.');
+      const phoneInvalid = LANG === 'es'
+        ? 'Teléfono inválido.'
+        : (LANG === 'en' ? 'Invalid phone number.' : 'Telefone inválido.');
+
+      var prefill = window._buyerPrefill || {};
+      var defaultName = prefill.fullName || (typeof getTelegramName === 'function' ? getTelegramName() : '') || '';
+      var defaultEmail = prefill.email || '';
+      var defaultCpf = prefill.cpfCnpj || '';
+      var defaultPhone = prefill.phone || '';
+
+      const fullName = (window.prompt(namePrompt, defaultName) || '').trim();
+      if (!fullName) return null;
+      if (fullName.split(/\s+/).length < 2) {
+        if (tg && tg.showPopup) tg.showPopup({ title: '', message: nameInvalid });
+        return null;
+      }
+
+      const email = (window.prompt(emailPrompt, defaultEmail) || '').trim().toLowerCase();
+      if (!email) return null;
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+        if (tg && tg.showPopup) tg.showPopup({ title: '', message: emailInvalid });
+        return null;
+      }
+
+      const cpfRaw = window.prompt(cpfPrompt, defaultCpf);
+      if (cpfRaw === null) return null;
+      const cpfCnpj = String(cpfRaw).replace(/\D/g, '');
+      if (!(cpfCnpj.length === 11 || cpfCnpj.length === 14)) {
+        if (tg && tg.showPopup) tg.showPopup({ title: '', message: cpfInvalid });
+        return null;
+      }
+      const phoneRaw = window.prompt(phonePrompt, defaultPhone);
+      if (phoneRaw === null) return null;
+      const phone = String(phoneRaw).replace(/\D/g, '');
+      if (!(phone.length === 10 || phone.length === 11)) {
+        if (tg && tg.showPopup) tg.showPopup({ title: '', message: phoneInvalid });
+        return null;
+      }
+      return { fullName, email, cpfCnpj, phone };
+    }
+
+    // Botão de pagamento — abre via tg.openLink no clique direto (gesto do usuário)
+    document.getElementById('btn-open-payment-manual').addEventListener('click', function() {
+      const url = this.dataset.payUrl;
+      if (!url) return;
+      if (tg && tg.openLink) tg.openLink(url);
+      else window.open(url, '_blank');
+    });
+
+    document.getElementById('btn-pagseguro').addEventListener('click', async function(e) {
+      e.preventDefault();
+      if (paymentInFlight) return;
+      if ((userPlan || '').toLowerCase() === 'pro') {
+        if (tg && tg.showPopup) {
+          tg.showPopup({
+            title: '',
+            message: (LANG === 'es'
+              ? 'Tu plan ya está activo como Pro.'
+              : (LANG === 'en' ? 'Your plan is already active as Pro.' : 'Seu plano já está ativo como Pro.')),
+          });
+        }
+        return;
+      }
+      if (apiBase && tg && tg.initData) {
+        const buyer = askBuyerData();
+        if (!buyer) return;
+        const manualWrapEl = document.getElementById('payment-manual-open');
+        const manualBtnEl = document.getElementById('btn-open-payment-manual');
+        if (manualWrapEl) manualWrapEl.style.display = 'none';
+        setPaymentLoading(true);
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 15000);
+          const r = await fetch(apiBase + '/webapp/asaas/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            signal: controller.signal,
+            body: JSON.stringify({
+              initData: tg.initData,
+              fullName: buyer.fullName,
+              email: buyer.email,
+              cpfCnpj: buyer.cpfCnpj,
+              phone: buyer.phone
+            })
+          });
+          clearTimeout(timeoutId);
+          const data = await r.json().catch(() => ({}));
+          if (data.payment_url) {
+            setPaymentLoading(false);
+            // Guarda URL no botão — será aberto pelo clique direto do usuário
+            if (manualBtnEl) manualBtnEl.dataset.payUrl = data.payment_url;
+            if (manualWrapEl) manualWrapEl.style.display = 'block';
+            setPendingCheckout(data.checkout_id || '1');
+            startPaymentAutoConfirm();
+            return;
+          }
+          const errMsg = data.error || (r.ok ? (LANG === 'es' ? 'No se recibió link de pago.' : (LANG === 'en' ? 'Payment link not returned.' : 'Link de pagamento não retornado.')) : 'Erro ' + r.status);
+          if (errMsg && tg.showPopup) tg.showPopup({ title: '', message: errMsg });
+        } catch (err) {
+          const errText = (err && err.name === 'AbortError')
+            ? (LANG === 'es'
+              ? 'La API tardó demasiado en responder. Intenta de nuevo en unos segundos.'
+              : (LANG === 'en'
+                ? 'The API took too long to respond. Please try again in a few seconds.'
+                : 'A API demorou para responder. Tente novamente em alguns segundos.'))
+            : (t('save_no_api') || 'Não foi possível conectar à API. Tente novamente.');
+          if (tg.showPopup) tg.showPopup({ title: '', message: errText });
+        } finally {
+          setPaymentLoading(false);
+        }
+        return;
+      }
+      if (asaasUrl && asaasUrl.indexOf('SEU_LINK') === -1) {
+        if (tg && tg.openLink) tg.openLink(asaasUrl); else window.open(asaasUrl, '_blank');
+      } else if (tg && tg.showPopup) {
+        tg.showPopup({ title: '', message: t('save_no_api') || 'Não foi possível conectar à API. Tente novamente.' });
+      }
+    });
+    document.getElementById('btn-pagseguro').href = asaasUrl.indexOf('SEU_LINK') === -1 ? asaasUrl : '#';
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        if (awaitingPaymentConfirmation) tryAutoConfirmPayment(false);
+        else { silentCheckPayment(); startSilentPoll(); }
+      }
+    });
+    window.addEventListener('focus', () => {
+      if (awaitingPaymentConfirmation) tryAutoConfirmPayment(false);
+      else { silentCheckPayment(); startSilentPoll(); }
+    });
+
+    const mainLangSelect = document.getElementById('main-lang');
+    if (mainLangSelect && ['pt','en','es','fr','de','it','ja','zh','ru','ko'].includes(LANG)) {
+      mainLangSelect.value = LANG;
+    }
+
+    // Carregar config do usuário (idiomas + plano) da API
+    async function loadUserConfig() {
+      if (!apiBase || !tg || !tg.initData) return;
+      try {
+        const r = await fetch(apiBase + '/webapp/config', {
+          headers: { 'X-Telegram-Init-Data': tg.initData }
+        });
+        if (!r.ok) return;
+        const data = await r.json();
+        if (data.mainLang) {
+          const mainEl = document.getElementById('main-lang');
+          if (mainEl && mainEl.querySelector('option[value="' + data.mainLang + '"]')) mainEl.value = data.mainLang;
+        }
+        if (data.learnLang) {
+          const learnEl = document.getElementById('learn-lang');
+          if (learnEl && learnEl.querySelector('option[value="' + data.learnLang + '"]')) learnEl.value = data.learnLang;
+        }
+        if (data.level) {
+          const levelEl = document.getElementById('level-select');
+          if (levelEl && levelEl.querySelector('option[value="' + data.level + '"]')) levelEl.value = data.level;
+        }
+        if (data.plan) {
+          userPlan = String(data.plan).toLowerCase();
+          if (userPlan === 'pro') clearPendingCheckout();
+        }
+        userProSignedAt = data.proSignedAt || null;
+        userProUntil = data.proUntil || null;
+        userGraceUntil = data.graceUntil || null;
+        window._buyerPrefill = {
+          fullName: (data.buyer_full_name || '').trim(),
+          email: (data.buyer_email || '').trim().toLowerCase(),
+          cpfCnpj: String(data.cpf_cnpj || '').replace(/\D/g, ''),
+          phone: String(data.buyer_phone || '').replace(/\D/g, '')
+        };
+        updatePlanUI();
+        updatePaymentSubscriptionUI();
+        updateLevelAccessUI();
+        // Username do bot vindo da API (para links Role Play) — evita "nome de usuário não encontrado"
+        window.__botUsernameForRoleplay = (data.botUsername || '').trim();
+        // Checa silenciosamente se há pagamento pendente confirmado e inicia polling
+        if ((userPlan || '').toLowerCase() !== 'pro') {
+          silentCheckPayment();
+          startSilentPoll();
+        }
+      } catch (e) {}
+    }
+    function getTelegramName() {
+      if (!tg || !tg.initData) return '';
+      try {
+        const params = new URLSearchParams(tg.initData);
+        const userStr = params.get('user');
+        if (!userStr) return '';
+        const user = JSON.parse(decodeURIComponent(userStr));
+        const first = (user.first_name || '').trim();
+        const last = (user.last_name || '').trim();
+        return [first, last].filter(Boolean).join(' ');
+      } catch (e) { return ''; }
+    }
+    function updatePlanUI() {
+      const nameEl = document.getElementById('plan-current-name');
+      const proCard = document.querySelector('.plan-card.pro');
+      const currentCard = document.getElementById('plan-current');
+      const celebrationCard = document.getElementById('plan-pro-celebration');
+      const homeDescEl = document.querySelector('#page-home .section-desc');
+      const isPro = (userPlan || '').toLowerCase() === 'pro';
+      if (nameEl) nameEl.textContent = isPro ? t('plan_pro') : t('plan_basic');
+      if (homeDescEl) homeDescEl.textContent = isPro ? (t('home_desc_pro') || t('home_desc')) : t('home_desc');
+      if (proCard) proCard.style.display = isPro ? 'none' : 'block';
+      if (currentCard) currentCard.classList.toggle('pro', isPro);
+      if (celebrationCard) celebrationCard.classList.toggle('active', isPro);
+
+      const feature1 = document.getElementById('plan-current-feature-1');
+      const feature2 = document.getElementById('plan-current-feature-2');
+      const feature3 = document.getElementById('plan-current-feature-3');
+      const feature4 = document.getElementById('plan-current-feature-4');
+      if (isPro) {
+        if (feature1) feature1.textContent = t('plan_pro_1');
+        if (feature2) feature2.textContent = t('plan_pro_2');
+        if (feature3) feature3.textContent = t('plan_pro_3');
+        if (feature4) {
+          feature4.textContent = t('plan_pro_4');
+          feature4.style.display = 'list-item';
+        }
+      } else {
+        if (feature1) feature1.textContent = t('plan_basic_1');
+        if (feature2) feature2.textContent = t('plan_basic_2');
+        if (feature3) feature3.textContent = t('plan_basic_3');
+        if (feature4) feature4.style.display = 'none';
+      }
+
+      const paymentBtnEl = document.getElementById('btn-pagseguro');
+      const upgradeBtns = document.querySelectorAll('[data-goto="payment"]');
+      const homeUpgradeBtn = document.getElementById('home-upgrade-btn');
+      const homeProBanner = document.getElementById('home-pro-banner');
+
+      if (paymentBtnEl) {
+        paymentBtnEl.style.pointerEvents = isPro ? 'none' : 'auto';
+        paymentBtnEl.style.opacity = isPro ? '0.6' : '1';
+        paymentBtnEl.textContent = isPro
+          ? (LANG === 'es' ? 'Pro activo' : (LANG === 'en' ? 'Pro active' : 'Pro ativo'))
+          : t('payment_btn');
+      }
+      upgradeBtns.forEach((el) => {
+        const isHomeUpgrade = el.closest('#page-home') !== null;
+        if (isHomeUpgrade) {
+          el.style.display = isPro ? 'none' : 'block';
+        } else {
+          el.style.pointerEvents = isPro ? 'none' : 'auto';
+          el.style.opacity = isPro ? '0.6' : '1';
+        }
+      });
+      if (homeUpgradeBtn) homeUpgradeBtn.style.display = isPro ? 'none' : 'block';
+      if (homeProBanner) homeProBanner.classList.toggle('active', isPro);
+      updatePaymentSubscriptionUI();
+      updateLevelAccessUI();
+    }
+    loadUserConfig();
+
+    // Salvar idiomas na API (debounce ao mudar select; botão Salvar chama direto)
+    let saveConfigTimeout = null;
+    async function saveUserConfig(showFeedback) {
+      if (!apiBase || !tg || !tg.initData) {
+        if (showFeedback && tg && tg.showPopup) tg.showPopup({ title: '', message: t('save_no_api') || 'Configure a API para salvar.' });
+        return;
+      }
+      const main = document.getElementById('main-lang').value;
+      const learn = document.getElementById('learn-lang').value;
+      const levelEl = document.getElementById('level-select');
+      const level = levelEl ? levelEl.value : 'iniciante';
+      try {
+        const r = await fetch(apiBase + '/webapp/config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ initData: tg.initData, mainLang: main, learnLang: learn, level: level })
+        });
+        const statusEl = document.getElementById('save-status');
+        if (r.ok) {
+          const data = await r.json().catch(() => ({}));
+          if (data && data.level) {
+            const levelElSet = document.getElementById('level-select');
+            if (levelElSet && levelElSet.querySelector('option[value="' + data.level + '"]')) levelElSet.value = data.level;
+          }
+          if (data && data.levelLocked && tg && tg.showPopup) {
+            tg.showPopup({ title: '', message: t('level_locked_msg') });
+          }
+          if (showFeedback && tg && tg.showPopup) tg.showPopup({ title: '', message: t('save_ok') || 'Salvo!' });
+          if (statusEl) { statusEl.textContent = t('save_ok') || 'Salvo!'; statusEl.classList.remove('error'); statusEl.style.display = 'block'; }
+        } else {
+          if (statusEl) { statusEl.textContent = t('save_error') || 'Erro ao salvar.'; statusEl.classList.add('error'); statusEl.style.display = 'block'; }
+        }
+      } catch (e) {}
+    }
+    function debouncedSave() {
+      clearTimeout(saveConfigTimeout);
+      saveConfigTimeout = setTimeout(() => saveUserConfig(false), 500);
+    }
+    document.getElementById('main-lang').addEventListener('change', debouncedSave);
+    document.getElementById('learn-lang').addEventListener('change', debouncedSave);
+    document.getElementById('btn-save-lang').addEventListener('click', () => saveUserConfig(true));
+    const levelSelect = document.getElementById('level-select');
+    if (levelSelect) {
+      levelSelect.addEventListener('change', debouncedSave);
+      document.getElementById('btn-save-level').addEventListener('click', () => saveUserConfig(true));
+    }
+    // Limpar status ao abrir páginas
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const statusEl = document.getElementById('save-status');
+        if (statusEl) statusEl.style.display = 'none';
+      });
+    });
+  </script>
+</body>
+</html>
