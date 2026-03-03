@@ -528,15 +528,11 @@
 
     const params = new URLSearchParams(window.location.search);
     const botName = params.get('bot') || '';
-    // URL fixa da API (Railway) – nunca muda
+    // URL fixa da API (Railway) – nunca muda, sempre tem prioridade
     var DEFAULT_API_BASE = 'https://language-telegram-bot-production.up.railway.app';
+    try { localStorage.removeItem('tikin_api_base'); } catch(e) {}
     var _apiFromUrl = (params.get('api') || '').replace(/\/$/, '');
-    if (_apiFromUrl) {
-      try { localStorage.setItem('tikin_api_base', _apiFromUrl); } catch(e) {}
-    }
-    var _apiFromStorage = '';
-    try { _apiFromStorage = localStorage.getItem('tikin_api_base') || ''; } catch(e) {}
-    let apiBase = (_apiFromUrl || _apiFromStorage || DEFAULT_API_BASE).replace(/\/$/, '');
+    let apiBase = (_apiFromUrl || DEFAULT_API_BASE).replace(/\/$/, '');
     const asaasUrl = params.get('asaas') || '';
 
     let userPlan = 'basic';
