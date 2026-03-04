@@ -90,6 +90,27 @@
     .roleplay-card:active { opacity: 0.9; }
     .roleplay-card .title { font-weight: 600; }
     .roleplay-card .meta { font-size: 12px; opacity: 0.8; margin-top: 4px; }
+    /* Destaque para roleplays novos — borda verde de lançamento */
+    .roleplay-card.roleplay-card--new {
+      position: relative;
+      border: 2px solid #22c55e;
+      box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.3), 0 4px 12px rgba(34, 197, 94, 0.15);
+    }
+    .roleplay-card.roleplay-card--new::before {
+      content: attr(data-new-label);
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #14532d;
+      background: linear-gradient(135deg, #86efac 0%, #22c55e 100%);
+      padding: 3px 8px;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
     @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 
     .section-title {
@@ -605,6 +626,9 @@
       { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '💝 Romance', id: 'anniversary', title: 'Aniversário de Namoro', subtitle: 'Surpreenda seu par no jantar de aniversário!', difficulty: '🟡 Intermediário' },
       // Adulto — Cultura
       { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🎭 Cultura', id: 'noche_flamenco', title: 'La Noche del Flamenco', subtitle: 'Viva uma noite de flamenco em Sevilha com um cantaor de verdade.', difficulty: '🟡 Intermediário' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🎭 Cultura', id: 'cafe_escritor', title: 'Café con un escritor', subtitle: 'Tome un café en Madrid y charle con un escritor sobre libros y vida.', difficulty: '🟡 Intermediário', new: true },
+      // Adulto — Dia a Dia (novo)
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🛒 Dia a Dia', id: 'feria_artesania', title: 'En la feria de artesanía', subtitle: 'Pregunte precios, materiales y lleve un recuerdo de Andalucía.', difficulty: '🟢 Iniciante', new: true },
       // Adulto — Viagem no Tempo
       { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🏛️ Viagem no Tempo', id: 'ancient_rome', title: 'Roma Antiga', subtitle: 'Converse com um cidadão romano!', difficulty: '🔴 Avançado' },
       { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🏛️ Viagem no Tempo', id: 'renaissance_artist', title: 'Renascimento Italiano', subtitle: 'Conheça um artista da Renascença!', difficulty: '🔴 Avançado' },
@@ -652,6 +676,7 @@
         roleplay_title: '🎭 Role Play',
         roleplay_desc: 'Choose a story. The bot will start the conversation in the chat. Exclusive for Pro.',
         roleplay_pro_badge: '⭐ Exclusive for Pro subscribers',
+        roleplay_new_badge: 'New',
         level_title: 'Practice level',
         level_desc: 'Choose the level of the conversations with the bot.',
         level_label: 'Level',
@@ -721,6 +746,7 @@
         roleplay_title: '🎭 Role Play',
         roleplay_desc: 'Escolha uma história. O bot inicia a conversa no chat. Exclusivo Pro.',
         roleplay_pro_badge: '⭐ Exclusivo para assinantes Pro',
+        roleplay_new_badge: 'Novo',
         level_title: 'Nível de prática',
         level_desc: 'Escolha o nível das conversas com o bot.',
         level_label: 'Nível',
@@ -790,6 +816,7 @@
         roleplay_title: '🎭 Role Play',
         roleplay_desc: 'Elige una historia. El bot iniciará la conversación en el chat. Exclusivo Pro.',
         roleplay_pro_badge: '⭐ Exclusivo para suscriptores Pro',
+        roleplay_new_badge: 'Nuevo',
         level_title: 'Nivel de práctica',
         level_desc: 'Elige el nivel de las conversaciones con el bot.',
         level_label: 'Nivel',
@@ -1148,7 +1175,9 @@
         html += '<div class="roleplay-group-title">' + g.audienceLabel + ' · ' + g.categoryLabel + '</div>';
         g.stories.forEach(s => {
           const url = 'https://t.me/' + effectiveBotUsername + '?start=rp_' + s.id;
-          html += '<a href="' + url + '" class="roleplay-card" data-rp-id="' + s.id + '" target="_blank" rel="noopener">';
+          const newClass = s.new ? ' roleplay-card--new' : '';
+          const newLabel = s.new ? t('roleplay_new_badge') : '';
+          html += '<a href="' + url + '" class="roleplay-card' + newClass + '" data-rp-id="' + s.id + '" data-new-label="' + (newLabel || '') + '" target="_blank" rel="noopener">';
           html += '<span class="title">' + s.title + '</span> <span class="meta">' + s.difficulty + '</span>';
           html += '<div class="meta">' + s.subtitle + '</div>';
           html += '</a>';
