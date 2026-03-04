@@ -567,24 +567,48 @@
 
     // Lista de Role Plays (espelha bot/roleplay.py) — id usado no deep link rp_<id>
     const ROLEPLAY_STORIES = [
+      // Infantil — Contos de Fadas
       { audience: 'children', audienceLabel: '👧 Infantil', categoryLabel: '🧚 Contos de Fadas', id: 'lost_princess', title: 'A Princesa Perdida', subtitle: 'Ajude a princesa a encontrar o castelo!', difficulty: '🟢 Iniciante' },
       { audience: 'children', audienceLabel: '👧 Infantil', categoryLabel: '🧚 Contos de Fadas', id: 'talking_dragon', title: 'O Dragão Amigável', subtitle: 'Faça amizade com o dragão solitário!', difficulty: '🟢 Iniciante' },
+      { audience: 'children', audienceLabel: '👧 Infantil', categoryLabel: '🧚 Contos de Fadas', id: 'fairy_spell', title: 'O Feitiço da Fada', subtitle: 'Ajude a fada a encontrar os ingredientes mágicos!', difficulty: '🟢 Iniciante' },
+      // Infantil — Aventura Animal
       { audience: 'children', audienceLabel: '👧 Infantil', categoryLabel: '🦁 Aventura Animal', id: 'zoo_day', title: 'Um Dia no Zoológico', subtitle: 'Os animais falam com você hoje!', difficulty: '🟢 Iniciante' },
       { audience: 'children', audienceLabel: '👧 Infantil', categoryLabel: '🦁 Aventura Animal', id: 'jungle_guide', title: 'Guia na Selva', subtitle: 'Explore a selva com seu guia especial!', difficulty: '🟢 Iniciante' },
+      { audience: 'children', audienceLabel: '👧 Infantil', categoryLabel: '🦁 Aventura Animal', id: 'sleepy_bear', title: 'O Urso Dorminhoco', subtitle: 'Acorde o urso com gentileza para a festa da floresta!', difficulty: '🟢 Iniciante' },
+      // Infantil — Espaço
       { audience: 'children', audienceLabel: '👧 Infantil', categoryLabel: '🚀 Espaço', id: 'mars_mission', title: 'Missão em Marte', subtitle: 'Você é astronauta explorando Marte!', difficulty: '🟡 Intermediário' },
       { audience: 'children', audienceLabel: '👧 Infantil', categoryLabel: '🚀 Espaço', id: 'friendly_alien', title: 'O Alienígena Amigável', subtitle: 'Ensine um alienígena sobre a Terra!', difficulty: '🟢 Iniciante' },
+      { audience: 'children', audienceLabel: '👧 Infantil', categoryLabel: '🚀 Espaço', id: 'space_station', title: 'A Estação Espacial', subtitle: 'Viva um dia como astronauta na estação!', difficulty: '🟡 Intermediário' },
+      // Adulto — Dia a Dia
       { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🛒 Dia a Dia', id: 'market', title: 'No Mercado Local', subtitle: 'Compre frutas e pratique preços!', difficulty: '🟡 Intermediário' },
       { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🛒 Dia a Dia', id: 'restaurant', title: 'Jantar no Restaurante', subtitle: 'Faça seu pedido em espanhol!', difficulty: '🟡 Intermediário' },
       { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🛒 Dia a Dia', id: 'doctor', title: 'Consulta Médica', subtitle: 'Descreva seus sintomas em espanhol!', difficulty: '🟡 Intermediário' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🛒 Dia a Dia', id: 'pharmacy', title: 'Na Farmácia', subtitle: 'Peça remédios e conselhos na farmácia!', difficulty: '🟡 Intermediário' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🛒 Dia a Dia', id: 'bank', title: 'No Banco', subtitle: 'Abra uma conta ou resolva problemas no banco!', difficulty: '🟡 Intermediário' },
+      // Adulto — Viagens
       { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '✈️ Viagens', id: 'lost_city', title: 'Perdido em Barcelona', subtitle: 'Peça direções pela cidade!', difficulty: '🟡 Intermediário' },
       { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '✈️ Viagens', id: 'hotel', title: 'Check-in no Hotel', subtitle: 'Reserve seu quarto e resolva problemas!', difficulty: '🟡 Intermediário' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '✈️ Viagens', id: 'car_rental', title: 'Aluguel de Carro', subtitle: 'Alugue um carro e combine o seguro em espanhol!', difficulty: '🟡 Intermediário' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '✈️ Viagens', id: 'beach_day', title: 'Um Dia na Praia', subtitle: 'Alugue guarda-sol e pratique na praia!', difficulty: '🟢 Iniciante' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '✈️ Viagens', id: 'restaurant_dinner', title: 'Jantar no Restaurante (garçom e maître)', subtitle: 'Peça o jantar e converse com o garçom e a maître!', difficulty: '🟡 Intermediário' },
+      // Adulto — Negócios
       { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '💼 Negócios', id: 'job_interview', title: 'Entrevista de Emprego', subtitle: 'Impressione na entrevista profissional!', difficulty: '🔴 Avançado' },
       { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '💼 Negócios', id: 'business_meeting', title: 'Reunião de Negócios', subtitle: 'Apresente seu projeto em espanhol!', difficulty: '🔴 Avançado' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '💼 Negócios', id: 'sales_pitch', title: 'Apresentação de Vendas', subtitle: 'Venda seu produto para um cliente exigente!', difficulty: '🔴 Avançado' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '💼 Negócios', id: 'software_client_meeting', title: 'Reunión con el cliente', subtitle: 'Desarrolladores de software y cliente: plazos, requisitos y demo.', difficulty: '🔴 Avançado' },
+      // Adulto — Mistério
       { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🕵️ Mistério', id: 'missing_artifact', title: 'O Artefato Desaparecido', subtitle: 'Resolva o mistério do museu!', difficulty: '🔴 Avançado' },
       { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🕵️ Mistério', id: 'mysterious_letter', title: 'A Carta Misteriosa', subtitle: 'Decifre as pistas e resolva o enigma!', difficulty: '🔴 Avançado' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🕵️ Mistério', id: 'museum_heist', title: 'O Roubo do Quadro', subtitle: 'Investigue quem trocou o quadro no museu!', difficulty: '🔴 Avançado' },
+      // Adulto — Romance
       { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '💝 Romance', id: 'first_date', title: 'Primeiro Encontro', subtitle: 'Pratique conversas românticas!', difficulty: '🟡 Intermediário' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '💝 Romance', id: 'anniversary', title: 'Aniversário de Namoro', subtitle: 'Surpreenda seu par no jantar de aniversário!', difficulty: '🟡 Intermediário' },
+      // Adulto — Cultura
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🎭 Cultura', id: 'noche_flamenco', title: 'La Noche del Flamenco', subtitle: 'Viva uma noite de flamenco em Sevilha com um cantaor de verdade.', difficulty: '🟡 Intermediário' },
+      // Adulto — Viagem no Tempo
       { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🏛️ Viagem no Tempo', id: 'ancient_rome', title: 'Roma Antiga', subtitle: 'Converse com um cidadão romano!', difficulty: '🔴 Avançado' },
       { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🏛️ Viagem no Tempo', id: 'renaissance_artist', title: 'Renascimento Italiano', subtitle: 'Conheça um artista da Renascença!', difficulty: '🔴 Avançado' },
+      { audience: 'adults', audienceLabel: '🧑 Adulto', categoryLabel: '🏛️ Viagem no Tempo', id: 'al_andalus', title: 'Al-Andalus', subtitle: 'Converse com um sábio na Córdoba medieval!', difficulty: '🔴 Avançado' },
     ];
 
     // URL fixa da API (Railway) – ignora qualquer api= na URL para evitar URLs antigas em cache
