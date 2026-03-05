@@ -550,12 +550,20 @@
           <option value="ko">🇰🇷 한국어</option>
         </select>
       </div>
+      <div class="section">
+        <label for="formality-select-lang" data-i18n="formality_label">Style</label>
+        <select id="formality-select-lang">
+          <option value="formal" data-i18n="formality_formal">Formal</option>
+          <option value="informal" data-i18n="formality_informal">Informal</option>
+        </select>
+        <p class="section-hint" data-i18n="formality_desc">The bot will speak and write in a formal or informal way.</p>
+      </div>
 
       <button type="button" id="btn-save-lang" class="btn btn-primary" data-i18n="btn_save">Save</button>
       <button type="button" class="btn btn-close" data-action="close" data-i18n="btn_close">Close</button>
     </section>
 
-    <!-- NÍVEL (Iniciante / Intermediário / Avançado) -->
+    <!-- NÍVEL + ESTILO (Iniciante/Intermediário/Avançado + Formal/Informal) -->
     <section id="page-level" class="section-page">
       <h2 class="section-title" data-i18n="level_title">Practice level</h2>
       <p class="section-desc" data-i18n="level_desc">Choose the level of the conversations with the bot.</p>
@@ -567,6 +575,14 @@
           <option value="intermediario" data-i18n="level_intermediate">Intermediate</option>
           <option value="avancado" data-i18n="level_advanced">Advanced</option>
         </select>
+      </div>
+      <div class="section">
+        <label for="formality-select" data-i18n="formality_label">Style</label>
+        <select id="formality-select">
+          <option value="formal" data-i18n="formality_formal">Formal</option>
+          <option value="informal" data-i18n="formality_informal">Informal</option>
+        </select>
+        <p class="section-hint" data-i18n="formality_desc">The bot will speak and write in a formal or informal way.</p>
       </div>
       <button type="button" id="btn-save-level" class="btn btn-primary" data-i18n="btn_save">Save</button>
       <button type="button" class="btn btn-close" data-action="close" data-i18n="btn_close">Close</button>
@@ -701,6 +717,10 @@
         level_advanced: 'Advanced',
         level_pro_only_note: 'Intermediate and Advanced are available for Pro only.',
         level_locked_msg: 'This level is available only on Pro. We set your level to Beginner.',
+        formality_label: 'Style',
+        formality_formal: 'Formal',
+        formality_informal: 'Informal',
+        formality_desc: 'The bot will speak and write in a formal or informal way.',
         home_title: 'Welcome to Tikin Languages',
         home_desc: 'Practice languages in Telegram with AI. Set your languages and upgrade to Pro for unlimited practice.',
         home_desc_pro: 'Your Pro is active. Keep practicing without limits and enjoy premium resources.',
@@ -789,6 +809,10 @@
         level_advanced: 'Avançado',
         level_pro_only_note: 'Intermediário e Avançado estão disponíveis apenas no Pro.',
         level_locked_msg: 'Esse nível está disponível apenas no Pro. Ajustamos para Iniciante.',
+        formality_label: 'Estilo',
+        formality_formal: 'Formal',
+        formality_informal: 'Informal',
+        formality_desc: 'O bot vai falar e escrever de forma formal ou informal.',
         home_title: 'Bem-vindo ao Tikin Languages',
         home_desc: 'Pratique idiomas no Telegram com IA. Configure seus idiomas e assine o Pro para prática ilimitada.',
         home_desc_pro: 'Seu Pro está ativo. Continue praticando sem limites e aproveite os recursos premium.',
@@ -877,6 +901,10 @@
         level_advanced: 'Avanzado',
         level_pro_only_note: 'Intermedio y Avanzado están disponibles solo en Pro.',
         level_locked_msg: 'Ese nivel está disponible solo en Pro. Ajustamos tu nivel a Principiante.',
+        formality_label: 'Estilo',
+        formality_formal: 'Formal',
+        formality_informal: 'Informal',
+        formality_desc: 'El bot hablará y escribirá de forma formal o informal.',
         home_title: 'Bienvenido a Tikin Languages',
         home_desc: 'Practica idiomas en Telegram con IA. Configura tus idiomas y mejora a Pro para práctica ilimitada.',
         home_desc_pro: 'Tu Pro está activo. Sigue practicando sin límites y aprovecha los recursos premium.',
@@ -1529,6 +1557,12 @@
           const levelEl = document.getElementById('level-select');
           if (levelEl && levelEl.querySelector('option[value="' + data.level + '"]')) levelEl.value = data.level;
         }
+        if (data.formality) {
+          const formalityEl = document.getElementById('formality-select');
+          if (formalityEl && formalityEl.querySelector('option[value="' + data.formality + '"]')) formalityEl.value = data.formality;
+          const formalityLangEl = document.getElementById('formality-select-lang');
+          if (formalityLangEl && formalityLangEl.querySelector('option[value="' + data.formality + '"]')) formalityLangEl.value = data.formality;
+        }
         if (data.plan) {
           userPlan = String(data.plan).toLowerCase();
           if (userPlan === 'pro') clearPendingCheckout();
@@ -1637,11 +1671,14 @@
       const learn = document.getElementById('learn-lang').value;
       const levelEl = document.getElementById('level-select');
       const level = levelEl ? levelEl.value : 'iniciante';
+      const formalityEl = document.getElementById('formality-select');
+      const formalityLangEl = document.getElementById('formality-select-lang');
+      const formality = (formalityLangEl ? formalityLangEl.value : null) || (formalityEl ? formalityEl.value : null) || 'formal';
       try {
         const r = await fetch(apiBase + '/webapp/config', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ initData: tg.initData, mainLang: main, learnLang: learn, level: level })
+          body: JSON.stringify({ initData: tg.initData, mainLang: main, learnLang: learn, level: level, formality: formality })
         });
         const statusEl = document.getElementById('save-status');
         if (r.ok) {
@@ -1649,6 +1686,12 @@
           if (data && data.level) {
             const levelElSet = document.getElementById('level-select');
             if (levelElSet && levelElSet.querySelector('option[value="' + data.level + '"]')) levelElSet.value = data.level;
+          }
+          if (data && data.formality) {
+            const formalityElSet = document.getElementById('formality-select');
+            if (formalityElSet && formalityElSet.querySelector('option[value="' + data.formality + '"]')) formalityElSet.value = data.formality;
+            const formalityLangElSet = document.getElementById('formality-select-lang');
+            if (formalityLangElSet && formalityLangElSet.querySelector('option[value="' + data.formality + '"]')) formalityLangElSet.value = data.formality;
           }
           if (data && data.levelLocked && tg && tg.showPopup) {
             tg.showPopup({ title: '', message: t('level_locked_msg') });
@@ -1671,6 +1714,20 @@
     if (levelSelect) {
       levelSelect.addEventListener('change', debouncedSave);
       document.getElementById('btn-save-level').addEventListener('click', () => saveUserConfig(true));
+    }
+    const formalitySelect = document.getElementById('formality-select');
+    const formalitySelectLang = document.getElementById('formality-select-lang');
+    if (formalitySelect) {
+      formalitySelect.addEventListener('change', () => {
+        if (formalitySelectLang) formalitySelectLang.value = formalitySelect.value;
+        debouncedSave();
+      });
+    }
+    if (formalitySelectLang) {
+      formalitySelectLang.addEventListener('change', () => {
+        if (formalitySelect) formalitySelect.value = formalitySelectLang.value;
+        debouncedSave();
+      });
     }
     // Limpar status ao abrir páginas
     document.querySelectorAll('.nav-item').forEach(item => {
