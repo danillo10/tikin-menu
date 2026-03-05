@@ -576,14 +576,6 @@
           <option value="avancado" data-i18n="level_advanced">Advanced</option>
         </select>
       </div>
-      <div class="section">
-        <label for="formality-select" data-i18n="formality_label">Style</label>
-        <select id="formality-select">
-          <option value="formal" data-i18n="formality_formal">Formal</option>
-          <option value="informal" data-i18n="formality_informal">Informal</option>
-        </select>
-        <p class="section-hint" data-i18n="formality_desc">The bot will speak and write in a formal or informal way.</p>
-      </div>
       <button type="button" id="btn-save-level" class="btn btn-primary" data-i18n="btn_save">Save</button>
       <button type="button" class="btn btn-close" data-action="close" data-i18n="btn_close">Close</button>
     </section>
@@ -1558,8 +1550,6 @@
           if (levelEl && levelEl.querySelector('option[value="' + data.level + '"]')) levelEl.value = data.level;
         }
         if (data.formality) {
-          const formalityEl = document.getElementById('formality-select');
-          if (formalityEl && formalityEl.querySelector('option[value="' + data.formality + '"]')) formalityEl.value = data.formality;
           const formalityLangEl = document.getElementById('formality-select-lang');
           if (formalityLangEl && formalityLangEl.querySelector('option[value="' + data.formality + '"]')) formalityLangEl.value = data.formality;
         }
@@ -1671,9 +1661,8 @@
       const learn = document.getElementById('learn-lang').value;
       const levelEl = document.getElementById('level-select');
       const level = levelEl ? levelEl.value : 'iniciante';
-      const formalityEl = document.getElementById('formality-select');
       const formalityLangEl = document.getElementById('formality-select-lang');
-      const formality = (formalityLangEl ? formalityLangEl.value : null) || (formalityEl ? formalityEl.value : null) || 'formal';
+      const formality = formalityLangEl ? formalityLangEl.value : 'formal';
       try {
         const r = await fetch(apiBase + '/webapp/config', {
           method: 'POST',
@@ -1688,8 +1677,6 @@
             if (levelElSet && levelElSet.querySelector('option[value="' + data.level + '"]')) levelElSet.value = data.level;
           }
           if (data && data.formality) {
-            const formalityElSet = document.getElementById('formality-select');
-            if (formalityElSet && formalityElSet.querySelector('option[value="' + data.formality + '"]')) formalityElSet.value = data.formality;
             const formalityLangElSet = document.getElementById('formality-select-lang');
             if (formalityLangElSet && formalityLangElSet.querySelector('option[value="' + data.formality + '"]')) formalityLangElSet.value = data.formality;
           }
@@ -1715,20 +1702,8 @@
       levelSelect.addEventListener('change', debouncedSave);
       document.getElementById('btn-save-level').addEventListener('click', () => saveUserConfig(true));
     }
-    const formalitySelect = document.getElementById('formality-select');
     const formalitySelectLang = document.getElementById('formality-select-lang');
-    if (formalitySelect) {
-      formalitySelect.addEventListener('change', () => {
-        if (formalitySelectLang) formalitySelectLang.value = formalitySelect.value;
-        debouncedSave();
-      });
-    }
-    if (formalitySelectLang) {
-      formalitySelectLang.addEventListener('change', () => {
-        if (formalitySelect) formalitySelect.value = formalitySelectLang.value;
-        debouncedSave();
-      });
-    }
+    if (formalitySelectLang) formalitySelectLang.addEventListener('change', debouncedSave);
     // Limpar status ao abrir páginas
     document.querySelectorAll('.nav-item').forEach(item => {
       item.addEventListener('click', () => {
