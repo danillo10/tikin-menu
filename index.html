@@ -131,6 +131,11 @@
       gap: 10px;
     }
     .home-actions .btn { margin-bottom: 0; }
+    .home-community { margin: 14px 0 6px; padding: 10px 14px; background: var(--tg-theme-secondary-bg-color, #2d2d44); border-radius: 12px; text-align: center; }
+    .home-community-label { font-size: 0.75rem; font-weight: 600; opacity: 0.85; display: block; margin-bottom: 6px; }
+    .home-community-link { color: var(--tg-theme-link-color, #6b9fff); text-decoration: none; font-size: 0.9rem; font-weight: 600; }
+    .home-community-link:active { opacity: 0.9; }
+    .home-community-sep { opacity: 0.5; margin: 0 6px; font-size: 0.9rem; }
     .home-pro-banner {
       display: none;
       margin: 0 0 14px 0;
@@ -428,6 +433,12 @@
       <div class="home-actions">
         <a href="#" class="btn btn-primary" data-goto="plan" data-i18n="home_see_plan">See my plan</a>
         <a id="home-upgrade-btn" href="#" class="btn btn-secondary" data-goto="payment" data-i18n="home_upgrade">Upgrade to Pro</a>
+        <div class="home-community">
+          <span class="home-community-label" data-i18n="home_community">Comunidade</span>
+          <a href="https://discord.gg/R2wWS3DK" target="_blank" rel="noopener" class="home-community-link" data-i18n="home_discord">Discord</a>
+          <span class="home-community-sep">·</span>
+          <a id="menu-site-link" href="https://tikin-languages.vercel.app" target="_blank" rel="noopener" class="home-community-link" data-i18n="home_site">Site Tikin</a>
+        </div>
         <button type="button" class="btn btn-close" id="btn-close" data-i18n="btn_close">Close</button>
       </div>
     </section>
@@ -697,6 +708,9 @@
         home_upgrade: 'Upgrade to Pro',
         home_pro_title: '✨ Pro plan active!',
         home_pro_desc: 'You unlocked the full experience: unlimited practice, voice, and advanced corrections.',
+        home_community: 'Community',
+        home_discord: 'Discord',
+        home_site: 'Tikin website',
         plan_title: 'My plan',
         plan_desc: 'Your current plan and what you get with Pro.',
         plan_basic: 'Basic',
@@ -782,6 +796,9 @@
         home_upgrade: 'Assinar Pro',
         home_pro_title: '✨ Plano Pro ativo!',
         home_pro_desc: 'Você desbloqueou a experiência completa: prática ilimitada, voz e correções avançadas.',
+        home_community: 'Comunidade',
+        home_discord: 'Discord',
+        home_site: 'Site Tikin',
         plan_title: 'Meu plano',
         plan_desc: 'Seu plano atual e o que você ganha com o Pro.',
         plan_basic: 'Basic',
@@ -867,6 +884,9 @@
         home_upgrade: 'Pasar a Pro',
         home_pro_title: '✨ ¡Plan Pro activo!',
         home_pro_desc: 'Desbloqueaste la experiencia completa: práctica ilimitada, voz y correcciones avanzadas.',
+        home_community: 'Comunidad',
+        home_discord: 'Discord',
+        home_site: 'Sitio Tikin',
         plan_title: 'Mi plan',
         plan_desc: 'Tu plan actual y lo que obtienes con Pro.',
         plan_basic: 'Basic',
