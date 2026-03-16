@@ -603,7 +603,7 @@
 
     const params = new URLSearchParams(window.location.search);
     const botName = params.get('bot') || '';
-    const BOT_USERNAME = botName || 'espanol_bot_br';
+    const BOT_USERNAME = botName || 'tikinidiomasbot';
 
     // Lista de Role Plays (espelha bot/roleplay.py) — títulos/subtítulos por idioma nativo em i18n.rp_titles / rp_subtitles
     const ROLEPLAY_STORIES = [
@@ -1536,12 +1536,22 @@
 
     // Carregar config do usuário (idiomas + plano) da API
     async function loadUserConfig() {
-      if (!apiBase || !tg || !tg.initData) return;
+      if (!apiBase) return;
+      if (!tg || !tg.initData) {
+        if (tg && tg.showPopup) tg.showPopup({ title: '', message: (LANG === 'es' ? 'Abre el menú desde el bot en Telegram para cargar tu configuración.' : (LANG === 'en' ? 'Open the menu from the bot in Telegram to load your settings.' : 'Abra o menu pelo bot no Telegram para carregar suas configurações.')) });
+        return;
+      }
       try {
         const r = await fetch(apiBase + '/webapp/config', {
           headers: { 'X-Telegram-Init-Data': tg.initData }
         });
-        if (!r.ok) return;
+        if (!r.ok) {
+          const msg = r.status === 401
+            ? (LANG === 'es' ? 'Sesión no válida. Cierra el menú y ábrelo de nuevo desde el bot.' : (LANG === 'en' ? 'Invalid session. Close the menu and open it again from the bot.' : 'Sessão inválida. Feche o menu e abra de novo pelo bot.'))
+            : (t('save_no_api') || 'Não foi possível conectar à API. Tente novamente.');
+          if (tg && tg.showPopup) tg.showPopup({ title: '', message: msg });
+          return;
+        }
         const data = await r.json();
         if (data.mainLang) {
           const mainEl = document.getElementById('main-lang');
@@ -1582,7 +1592,9 @@
           silentCheckPayment();
           startSilentPoll();
         }
-      } catch (e) {}
+      } catch (e) {
+        if (tg && tg.showPopup) tg.showPopup({ title: '', message: (t('save_no_api') || 'Não foi possível conectar à API. Verifique a internet e abra o menu pelo bot no Telegram.') });
+      }
     }
     function getTelegramName() {
       if (!tg || !tg.initData) return '';
