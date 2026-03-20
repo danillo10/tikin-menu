@@ -1307,14 +1307,33 @@
           if (!storyId || !apiBase || !tg || !tg.initData) return;
           this.style.opacity = '0.6';
           try {
-            await fetch(apiBase + '/webapp/roleplay/start', {
+            const r = await fetch(apiBase + '/webapp/roleplay/start', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ storyId, initData: tg.initData }),
             });
-          } catch (err) {}
-          // Fecha o menu — o bot já enviou a mensagem com o botão no chat
-          if (tg && tg.close) tg.close();
+            const data = await r.json().catch(() => ({}));
+            if (!r.ok || !data.ok) {
+              const msg = data.error || (LANG === 'es'
+                ? 'No se pudo iniciar este role play. Intenta de nuevo.'
+                : (LANG === 'en'
+                  ? 'Could not start this role play. Please try again.'
+                  : 'Não foi possível iniciar este role play. Tente novamente.'));
+              if (tg && tg.showPopup) tg.showPopup({ title: '', message: msg });
+              this.style.opacity = '1';
+              return;
+            }
+            // Fecha o menu — a API enviou a mensagem com o botão no chat
+            if (tg && tg.close) tg.close();
+          } catch (err) {
+            const msg = (LANG === 'es'
+              ? 'Error de conexión. Intenta de nuevo.'
+              : (LANG === 'en'
+                ? 'Connection error. Please try again.'
+                : 'Erro de conexão. Tente novamente.'));
+            if (tg && tg.showPopup) tg.showPopup({ title: '', message: msg });
+          }
+          this.style.opacity = '1';
         });
       });
     }
