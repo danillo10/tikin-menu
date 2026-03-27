@@ -670,15 +670,14 @@
     let userProUntil = null;
     let userGraceUntil = null;
 
-    // Idioma da plataforma: do usuário (Telegram ou URL) ou padrão português
+    // Idioma da plataforma: padrão inglês (pode ser alterado pelo usuário no menu)
     function getMainLanguage() {
-      const fromTg = tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.language_code;
       const fromUrl = params.get('lang');
-      const raw = (fromTg || fromUrl || 'pt').toLowerCase().slice(0, 2);
+      const raw = (fromUrl || 'en').toLowerCase().slice(0, 2);
       const supported = ['en','pt','es','fr','de','it','ja','zh','ru','ko'];
-      return supported.includes(raw) ? raw : 'pt';
+      return supported.includes(raw) ? raw : 'en';
     }
-    const LANG = getMainLanguage();
+    let LANG = getMainLanguage();
 
     const i18n = {
       en: {
@@ -970,11 +969,11 @@
       const L = lang || LANG;
       return (i18n[L] && i18n[L][key]) || i18n.pt[key] || i18n.en[key] || key;
     };
-    /** Idioma nativo para a lista de Role Play: prioridade = idioma do Telegram (nativo), nunca o idioma que está aprendendo. */
+    /** Idioma da lista de Role Play: usa o idioma principal selecionado pelo usuário. */
     function getRoleplayListLang() {
-      const fromTg = tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.language_code;
-      const raw = String(fromTg || LANG || 'pt').toLowerCase().slice(0, 2);
-      if (raw === 'pt' || raw === 'es' || raw === 'en') return raw;
+      const mainEl = document.getElementById('main-lang');
+      const raw = String((mainEl && mainEl.value) || LANG || 'en').toLowerCase().slice(0, 2);
+      if (['en','pt','es','fr','de','it','ja','zh','ru','ko'].includes(raw)) return raw;
       return 'en';
     }
     function rpStoryTitle(id, lang) {
@@ -1008,6 +1007,24 @@
       loadingTextEl.textContent = LANG === 'es'
         ? 'Procesando pago...'
         : (LANG === 'en' ? 'Processing payment...' : 'Processando pagamento...');
+    }
+    function setMenuLanguage(lang) {
+      const next = String(lang || '').toLowerCase().slice(0, 2);
+      if (!['en','pt','es','fr','de','it','ja','zh','ru','ko'].includes(next)) return;
+      LANG = next;
+      document.documentElement.lang = LANG === 'zh' ? 'zh-CN' : LANG;
+      applyTranslations();
+      if (loadingTextEl) {
+        loadingTextEl.textContent = LANG === 'es'
+          ? 'Procesando pago...'
+          : (LANG === 'en' ? 'Processing payment...' : 'Processando pagamento...');
+      }
+      updatePlanUI();
+      updatePaymentSubscriptionUI();
+      updateLevelAccessUI();
+      if (document.getElementById('page-roleplay') && document.getElementById('page-roleplay').classList.contains('active')) {
+        renderRoleplayList();
+      }
     }
 
     const paymentBtn = document.getElementById('btn-pagseguro');
@@ -1574,7 +1591,10 @@
         const data = await r.json();
         if (data.mainLang) {
           const mainEl = document.getElementById('main-lang');
-          if (mainEl && mainEl.querySelector('option[value="' + data.mainLang + '"]')) mainEl.value = data.mainLang;
+          if (mainEl && mainEl.querySelector('option[value="' + data.mainLang + '"]')) {
+            mainEl.value = data.mainLang;
+            setMenuLanguage(data.mainLang);
+          }
         }
         if (data.learnLang) {
           const learnEl = document.getElementById('learn-lang');
@@ -1708,6 +1728,7 @@
         });
         const statusEl = document.getElementById('save-status');
         if (r.ok) {
+          setMenuLanguage(main);
           const data = await r.json().catch(() => ({}));
           if (data && data.level) {
             const levelElSet = document.getElementById('level-select');
