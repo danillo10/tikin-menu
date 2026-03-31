@@ -631,6 +631,11 @@
       { audience: 'adults', category: 'business', id: 'business_meeting', difficulty: 'advanced' },
       { audience: 'adults', category: 'business', id: 'sales_pitch', difficulty: 'advanced' },
       { audience: 'adults', category: 'business', id: 'software_client_meeting', difficulty: 'advanced' },
+      { audience: 'adults', category: 'business', id: 'daily_blocker', difficulty: 'intermediate', new: true },
+      { audience: 'adults', category: 'business', id: 'daily_scope_change', difficulty: 'advanced', new: true },
+      { audience: 'adults', category: 'business', id: 'daily_prod_incident', difficulty: 'advanced', new: true },
+      { audience: 'adults', category: 'business', id: 'daily_code_review', difficulty: 'intermediate', new: true },
+      { audience: 'adults', category: 'business', id: 'daily_release_risk', difficulty: 'advanced', new: true },
       { audience: 'adults', category: 'mystery', id: 'missing_artifact', difficulty: 'advanced' },
       { audience: 'adults', category: 'mystery', id: 'mysterious_letter', difficulty: 'advanced' },
       { audience: 'adults', category: 'mystery', id: 'museum_heist', difficulty: 'advanced' },
@@ -982,7 +987,7 @@
       if (o && o[id]) return o[id];
       if (i18n.pt && i18n.pt.rp_titles && i18n.pt.rp_titles[id]) return i18n.pt.rp_titles[id];
       if (i18n.en && i18n.en.rp_titles && i18n.en.rp_titles[id]) return i18n.en.rp_titles[id];
-      return id;
+      return String(id || '').replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
     }
     function rpStorySubtitle(id, lang) {
       const L = lang || LANG;
@@ -990,7 +995,7 @@
       if (o && o[id]) return o[id];
       if (i18n.pt && i18n.pt.rp_subtitles && i18n.pt.rp_subtitles[id]) return i18n.pt.rp_subtitles[id];
       if (i18n.en && i18n.en.rp_subtitles && i18n.en.rp_subtitles[id]) return i18n.en.rp_subtitles[id];
-      return '';
+      return 'Practice a realistic software team daily scenario.';
     }
     function rpDifficultyLabel(diff, lang) {
       const emoji = diff === 'beginner' ? '🟢 ' : diff === 'intermediate' ? '🟡 ' : '🔴 ';
